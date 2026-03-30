@@ -90,4 +90,18 @@
     border: 1px solid hsl(var(--border) / 0.5);
     box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
   }
+
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+
+  .glass-panel {
+    background: rgba(42, 42, 43, 0.7);
+    backdrop-filter: blur(20px);
+  }
+
+  .primary-gradient {
+    background: linear-gradient(135deg, #0a6bee 0%, #b0c6ff 100%);
+  }
 }

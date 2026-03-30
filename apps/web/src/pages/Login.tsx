@@ -3,8 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Bot } from 'lucide-react';
 import { toast } from 'sonner';
+import { ArrowRight, Box } from 'lucide-react';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -13,27 +13,31 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        supabase.auth.getSession().then(({ data: { session } }) => {
-            if (session) {
-                navigate('/dashboard');
-            }
-        });
+        supabase.auth
+            .getSession()
+            .then(({ data: { session } }) => {
+                if (session) {
+                    navigate('/dashboard');
+                }
+            })
+            .catch(() => { });
     }, [navigate]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
 
-        const isDemoAccount = email === 'admin@example.com' && password === 'password';
+        const normalizedEmail = email.trim().toLowerCase();
+        const normalizedPassword = password.trim();
+        const isDemoAccount = normalizedEmail === 'admin@example.com' && normalizedPassword === 'password';
 
         try {
             const { error } = await supabase.auth.signInWithPassword({
-                email,
-                password,
+                email: normalizedEmail,
+                password: normalizedPassword,
             });
 
             if (error) {
-                // If it's a demo account and it failed (likely due to no backend), bypass
                 if (isDemoAccount) {
                     localStorage.setItem('demo-mode', 'true');
                     toast.success("Demo Mode: Access Granted");
@@ -46,95 +50,104 @@ export default function Login() {
                 toast.success("Welcome back!");
                 navigate('/dashboard');
             }
-        } catch (err: any) {
-            // Demo Bypass for thrown network errors
+        } catch (err: unknown) {
             if (isDemoAccount) {
                 localStorage.setItem('demo-mode', 'true');
                 toast.success("Demo Mode: Access Granted");
                 navigate('/dashboard');
             } else {
-                toast.error(err.message || "Failed to connect to authentication server");
+                const message = err instanceof Error ? err.message : "Failed to connect to authentication server";
+                toast.error(message);
                 setLoading(false);
             }
         }
     };
 
     return (
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <div className="flex justify-center mb-6">
-                <div className="relative group">
-                    <div className="absolute -inset-1 bg-gradient-to-r from-primary to-accent rounded-2xl blur opacity-25 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
-                    <div className="relative h-16 w-16 rounded-2xl bg-gradient-to-br from-card to-background flex items-center justify-center border border-border/50 shadow-2xl">
-                        <Bot className="h-8 w-8 text-primary animate-pulse" />
+        <div className="min-h-screen bg-[#09090B] flex items-center justify-center p-6 relative overflow-hidden">
+            
+            {/* Ambient Background Glow */}
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none"></div>
+
+            <div className="w-full max-w-md relative z-10 flex flex-col items-center">
+                
+                {/* Brand Logo & Headline */}
+                <div className="flex flex-col items-center mb-10 space-y-4">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#ffffff]/10 to-[#ffffff]/5 border border-[#ffffff]/10 shadow-[0_0_40px_rgba(255,255,255,0.05)] flex items-center justify-center">
+                        <Box className="w-7 h-7 text-white" />
+                    </div>
+                    <div className="text-center">
+                        <h1 className="text-3xl font-extrabold tracking-tight text-white font-headline">Atlas Copilot</h1>
+                        <p className="mt-2 text-[15px] text-[#A1A1AA]">Sign in to your intelligent workspace.</p>
                     </div>
                 </div>
-            </div>
-            <h2 className="text-center text-3xl font-extrabold tracking-tight text-foreground">
-                Knowledge Copilot
-            </h2>
-            <p className="mt-2 text-center text-sm text-muted-foreground">
-                Sign in to manage your AI knowledge base
-            </p>
 
-            <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-                <div className="glass-card sm:rounded-2xl sm:px-10 py-8 px-4 w-full">
-                    <form className="space-y-6" onSubmit={handleLogin}>
-                        <div>
-                            <label className="block text-sm font-medium text-foreground">
-                                Email address
-                            </label>
-                            <div className="mt-1">
-                                <Input
-                                    id="email"
-                                    name="email"
-                                    type="email"
-                                    autoComplete="email"
-                                    required
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    placeholder="admin@example.com"
-                                />
+                {/* Login Card */}
+                <div className="w-full bg-[#18181B]/80 backdrop-blur-xl border border-[#ffffff]/10 rounded-2xl p-8 shadow-2xl">
+                    <form className="space-y-5" onSubmit={handleLogin}>
+                        <div className="space-y-2">
+                            <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">Email Address</label>
+                            <Input
+                                type="email"
+                                required
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="name@company.com"
+                                className="h-11 bg-[#09090B] border-[#ffffff]/10 text-white placeholder:text-[#52525B] focus-visible:ring-primary/50 focus-visible:border-primary/50"
+                            />
+                        </div>
+
+                        <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                                <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">Password</label>
+                                <a href="#" className="text-xs font-semibold text-primary hover:text-white transition-colors">Forgot password?</a>
                             </div>
+                            <Input
+                                type="password"
+                                required
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="••••••••"
+                                className="h-11 bg-[#09090B] border-[#ffffff]/10 text-white placeholder:text-[#52525B] focus-visible:ring-primary/50 focus-visible:border-primary/50"
+                            />
                         </div>
 
-                        <div>
-                            <label className="block text-sm font-medium text-foreground">
-                                Password
-                            </label>
-                            <div className="mt-1">
-                                <Input
-                                    id="password"
-                                    name="password"
-                                    type="password"
-                                    autoComplete="current-password"
-                                    required
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    placeholder="••••••••"
-                                />
-                            </div>
-                        </div>
-
-                        {/* Error state handled via Sonner toast */}
-
-                        <div>
-                            <Button
-                                type="submit"
-                                className="w-full h-11 text-base font-semibold shadow-sm"
-                                disabled={loading}
-                            >
-                                {loading ? 'Signing in...' : 'Sign in'}
-                            </Button>
-                        </div>
-
-                        <div className="mt-4 text-center">
-                            <p className="text-xs text-muted-foreground">
-                                Use <code className="bg-muted px-1 py-0.5 rounded">admin@example.com / password</code> for demo
-                            </p>
-                        </div>
+                        <Button
+                            type="submit"
+                            disabled={loading}
+                            className="w-full h-11 mt-2 text-primary-foreground font-semibold bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-lg shadow-primary/20"
+                        >
+                            {loading ? 'Authenticating...' : 'Sign In'}
+                        </Button>
                     </form>
+
+                    <div className="mt-8 flex items-center gap-4">
+                        <div className="flex-1 h-px bg-[#ffffff]/10"></div>
+                        <span className="text-xs font-semibold uppercase tracking-widest text-[#52525B]">Guest Access</span>
+                        <div className="flex-1 h-px bg-[#ffffff]/10"></div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            localStorage.setItem('demo-mode', 'true');
+                            toast.success("Sandbox environment activated");
+                            navigate('/dashboard');
+                        }}
+                        className="w-full h-11 mt-6 flex items-center justify-center gap-2 text-[14px] font-semibold text-white bg-[#ffffff]/5 hover:bg-[#ffffff]/10 border border-[#ffffff]/10 rounded-xl transition-all group"
+                    >
+                        Try Live Demo
+                        <ArrowRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-white transition-colors group-hover:translate-x-1" />
+                    </button>
                 </div>
+                
+                {/* Footer terms */}
+                <p className="mt-8 text-xs text-[#52525B] text-center">
+                    By accessing Atlas, you agree to our Terms of Service and Privacy Policy. <br />
+                    Internal corporate use only.
+                </p>
             </div>
+            
         </div>
     );
 }

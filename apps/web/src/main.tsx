@@ -15,6 +15,9 @@ import Login from './pages/Login';
 import Documents from './pages/Documents';
 import Chat from './pages/Chat';
 import Settings from './pages/Settings';
+import Help from './pages/Help';
+import Sources from './pages/Sources';
+import Prompts from './pages/Prompts';
 
 const queryClient = new QueryClient();
 
@@ -36,6 +39,9 @@ createRoot(document.getElementById('root')!).render(
             <Route path="/documents" element={<Documents />} />
             <Route path="/chat" element={<Chat />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/ayuda" element={<Help />} />
+            <Route path="/sources" element={<Sources />} />
+            <Route path="/prompts" element={<Prompts />} />
           </Route>
         </Routes>
       </BrowserRouter>
