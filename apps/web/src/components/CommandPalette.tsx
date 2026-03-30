@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Monitor, Library, Settings as SettingsIcon, Lightbulb, MessageSquare, LogOut } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
+import { useLanguage } from '@/lib/i18n';
 
 interface CommandItem {
     id: string;
@@ -18,6 +19,7 @@ export function CommandPalette() {
     const [selectedIndex, setSelectedIndex] = useState(0);
     const navigate = useNavigate();
     const inputRef = useRef<HTMLInputElement>(null);
+    const { t } = useLanguage();
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -40,13 +42,13 @@ export function CommandPalette() {
     };
 
     const commands: CommandItem[] = [
-        { id: '1', title: 'Go to Dashboard', icon: <Monitor className="w-4 h-4 text-primary" />, category: 'Navigation', action: () => { navigate('/dashboard'); setOpen(false); } },
-        { id: '2', title: 'New Chat', icon: <MessageSquare className="w-4 h-4 text-emerald-400" />, category: 'Navigation', action: () => { navigate('/chat'); setOpen(false); } },
-        { id: '3', title: 'Upload Knowledge', icon: <Library className="w-4 h-4 text-blue-400" />, category: 'Navigation', action: () => { navigate('/documents'); setOpen(false); } },
-        { id: '4', title: 'View Prompt Library', icon: <Lightbulb className="w-4 h-4 text-amber-400" />, category: 'Navigation', action: () => { navigate('/prompts'); setOpen(false); } },
-        { id: '5', title: 'View Settings', icon: <SettingsIcon className="w-4 h-4 text-[#A1A1AA]" />, category: 'Navigation', action: () => { navigate('/settings'); setOpen(false); } },
-        { id: '6', title: 'Toggle Demo Mode', icon: <Monitor className="w-4 h-4 text-[#A1A1AA]" />, category: 'Commands', action: () => { toast("Demo Mode Toggled"); setOpen(false); } },
-        { id: '7', title: 'Log Out', icon: <LogOut className="w-4 h-4 text-red-400" />, category: 'Danger', action: handleLogout },
+        { id: '1', title: t('cmd.nav_dashboard'), icon: <Monitor className="w-4 h-4 text-primary" />, category: 'Navigation', action: () => { navigate('/dashboard'); setOpen(false); } },
+        { id: '2', title: t('cmd.nav_chat'), icon: <MessageSquare className="w-4 h-4 text-emerald-400" />, category: 'Navigation', action: () => { navigate('/chat'); setOpen(false); } },
+        { id: '3', title: t('cmd.nav_documents'), icon: <Library className="w-4 h-4 text-blue-400" />, category: 'Navigation', action: () => { navigate('/documents'); setOpen(false); } },
+        { id: '4', title: t('cmd.nav_prompts'), icon: <Lightbulb className="w-4 h-4 text-amber-400" />, category: 'Navigation', action: () => { navigate('/prompts'); setOpen(false); } },
+        { id: '5', title: t('cmd.nav_settings'), icon: <SettingsIcon className="w-4 h-4 text-[#A1A1AA]" />, category: 'Navigation', action: () => { navigate('/settings'); setOpen(false); } },
+        { id: '6', title: t('cmd.toggle_demo'), icon: <Monitor className="w-4 h-4 text-[#A1A1AA]" />, category: 'Commands', action: () => { toast("Demo Mode Toggled"); setOpen(false); } },
+        { id: '7', title: t('cmd.logout'), icon: <LogOut className="w-4 h-4 text-red-400" />, category: 'Danger', action: handleLogout },
     ];
 
     const filtered = commands.filter(cmd => cmd.title.toLowerCase().includes(search.toLowerCase()) || cmd.category.toLowerCase().includes(search.toLowerCase()));
@@ -103,7 +105,7 @@ export function CommandPalette() {
                         value={search}
                         onChange={e => setSearch(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Search commands, pages, or tools..."
+                        placeholder={t('cmd.search')}
                         className="flex-1 bg-transparent border-none text-white text-[15px] outline-none px-4 placeholder:text-[#52525B]"
                     />
                     <div className="flex items-center gap-1.5 shrink-0">
@@ -115,7 +117,7 @@ export function CommandPalette() {
                 <div className="max-h-[300px] overflow-y-auto p-2">
                     {filtered.length === 0 ? (
                         <div className="py-10 text-center text-[#52525B] text-sm">
-                            No results found.
+                            {t('cmd.no_results')}
                         </div>
                     ) : (
                         <div className="space-y-1">
@@ -145,8 +147,8 @@ export function CommandPalette() {
 
                 {/* Footer */}
                 <div className="bg-[#09090B]/50 px-4 py-2 border-t border-[#ffffff]/5 flex items-center gap-4 text-[11px] font-medium text-[#52525B]">
-                    <span className="flex items-center gap-1"><kbd className="bg-[#ffffff]/5 px-1 rounded">↑</kbd> <kbd className="bg-[#ffffff]/5 px-1 rounded">↓</kbd> to navigate</span>
-                    <span className="flex items-center gap-1"><kbd className="bg-[#ffffff]/5 px-1 rounded">↵</kbd> to select</span>
+                    <span className="flex items-center gap-1"><kbd className="bg-[#ffffff]/5 px-1 rounded">↑</kbd> <kbd className="bg-[#ffffff]/5 px-1 rounded">↓</kbd> {t('cmd.to_navigate')}</span>
+                    <span className="flex items-center gap-1"><kbd className="bg-[#ffffff]/5 px-1 rounded">↵</kbd> {t('cmd.to_select')}</span>
                 </div>
             </div>
 

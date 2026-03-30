@@ -5,12 +5,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
 import { ArrowRight, Box } from 'lucide-react';
+import { useLanguage } from '@/lib/i18n';
 
 export default function Login() {
     const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
+    const { t } = useLanguage();
 
     useEffect(() => {
         supabase.auth
@@ -77,8 +79,8 @@ export default function Login() {
                         <Box className="w-7 h-7 text-white" />
                     </div>
                     <div className="text-center">
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white font-headline">Atlas Copilot</h1>
-                        <p className="mt-2 text-[15px] text-[#A1A1AA]">Sign in to your intelligent workspace.</p>
+                        <h1 className="text-3xl font-extrabold tracking-tight text-white font-headline">{t('login.title')}</h1>
+                        <p className="mt-2 text-[15px] text-[#A1A1AA]">{t('login.subtitle')}</p>
                     </div>
                 </div>
 
@@ -86,7 +88,7 @@ export default function Login() {
                 <div className="w-full bg-[#18181B]/80 backdrop-blur-xl border border-[#ffffff]/10 rounded-2xl p-8 shadow-2xl">
                     <form className="space-y-5" onSubmit={handleLogin}>
                         <div className="space-y-2">
-                            <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">Email Address</label>
+                            <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">{t('login.email')}</label>
                             <Input
                                 type="email"
                                 required
@@ -99,8 +101,8 @@ export default function Login() {
 
                         <div className="space-y-2">
                             <div className="flex items-center justify-between">
-                                <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">Password</label>
-                                <a href="#" className="text-xs font-semibold text-primary hover:text-white transition-colors">Forgot password?</a>
+                                <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">{t('login.password')}</label>
+                                <a href="#" className="text-xs font-semibold text-primary hover:text-white transition-colors">{t('login.forgot')}</a>
                             </div>
                             <Input
                                 type="password"
@@ -117,13 +119,13 @@ export default function Login() {
                             disabled={loading}
                             className="w-full h-11 mt-2 text-primary-foreground font-semibold bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-lg shadow-primary/20"
                         >
-                            {loading ? 'Authenticating...' : 'Sign In'}
+                            {loading ? t('login.button_loading') : t('login.button')}
                         </Button>
                     </form>
 
                     <div className="mt-8 flex items-center gap-4">
                         <div className="flex-1 h-px bg-[#ffffff]/10"></div>
-                        <span className="text-xs font-semibold uppercase tracking-widest text-[#52525B]">Guest Access</span>
+                        <span className="text-xs font-semibold uppercase tracking-widest text-[#52525B]">{t('login.guest_access')}</span>
                         <div className="flex-1 h-px bg-[#ffffff]/10"></div>
                     </div>
 
@@ -136,15 +138,14 @@ export default function Login() {
                         }}
                         className="w-full h-11 mt-6 flex items-center justify-center gap-2 text-[14px] font-semibold text-white bg-[#ffffff]/5 hover:bg-[#ffffff]/10 border border-[#ffffff]/10 rounded-xl transition-all group"
                     >
-                        Try Live Demo
+                        {t('login.demo')}
                         <ArrowRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-white transition-colors group-hover:translate-x-1" />
                     </button>
                 </div>
                 
                 {/* Footer terms */}
-                <p className="mt-8 text-xs text-[#52525B] text-center">
-                    By accessing Atlas, you agree to our Terms of Service and Privacy Policy. <br />
-                    Internal corporate use only.
+                <p className="mt-8 text-xs text-[#52525B] text-center max-w-[280px]">
+                    {t('login.terms')}
                 </p>
             </div>
             

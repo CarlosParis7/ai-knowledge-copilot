@@ -3,11 +3,13 @@ import { Outlet, Link, useLocation, useNavigate } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import { CommandPalette } from '@/components/CommandPalette';
+import { useLanguage } from '@/lib/i18n';
 
 export default function MainLayout() {
     const location = useLocation();
     const navigate = useNavigate();
     const [loading, setLoading] = useState(true);
+    const { lang, setLang, t } = useLanguage();
 
     useEffect(() => {
         const checkAuth = async () => {
@@ -37,11 +39,11 @@ export default function MainLayout() {
     }
 
     const navigation = [
-        { name: 'Dashboard', href: '/dashboard', icon: 'home' },
-        { name: 'Chats', href: '/chat', icon: 'chat_bubble' },
-        { name: 'Knowledge', href: '/documents', icon: 'library_books' },
-        { name: 'Sources', href: '/sources', icon: 'cloud_queue' },
-        { name: 'Prompts', href: '/prompts', icon: 'lightbulb' },
+        { name: t('nav.dashboard'), href: '/dashboard', icon: 'home' },
+        { name: t('nav.chats'), href: '/chat', icon: 'chat_bubble' },
+        { name: t('nav.knowledge'), href: '/documents', icon: 'library_books' },
+        { name: t('nav.sources'), href: '/sources', icon: 'cloud_queue' },
+        { name: t('nav.prompts'), href: '/prompts', icon: 'lightbulb' },
     ];
 
     /* 
@@ -113,7 +115,7 @@ export default function MainLayout() {
                     >
                         <span className="material-symbols-outlined text-[24px]">settings</span>
                         <div className="hidden md:absolute md:left-full md:ml-4 md:group-hover:block z-[100] whitespace-nowrap bg-[#27272A] border border-[#ffffff]/10 px-3 py-1.5 text-xs font-semibold text-white rounded-lg shadow-xl shadow-black/50 pointer-events-none">
-                            Settings
+                            {t('nav.settings')}
                         </div>
                     </Link>
 
@@ -121,18 +123,26 @@ export default function MainLayout() {
                     <div className="hidden md:flex flex-col items-center w-full space-y-3">
                         <Link to="/ayuda" className="text-[#A1A1AA] hover:text-white group relative flex h-11 w-11 items-center justify-center rounded-xl hover:bg-[#ffffff]/5 transition-all">
                             <span className="material-symbols-outlined text-[24px]">help</span>
-                            <div className="absolute left-full ml-4 hidden group-hover:block z-[100] whitespace-nowrap bg-[#27272A] border border-[#ffffff]/10 px-3 py-1.5 text-xs font-semibold text-white rounded-lg shadow-xl shadow-black/50 pointer-events-none">Help</div>
+                            <div className="absolute left-full ml-4 hidden group-hover:block z-[100] whitespace-nowrap bg-[#27272A] border border-[#ffffff]/10 px-3 py-1.5 text-xs font-semibold text-white rounded-lg shadow-xl shadow-black/50 pointer-events-none">{t('nav.help')}</div>
                         </Link>
                         
+                        {/* Language Toggle */}
+                        <button 
+                            onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+                            className="text-[#A1A1AA] hover:text-white group relative flex h-11 w-11 items-center justify-center rounded-xl hover:bg-[#ffffff]/5 transition-all outline-none font-bold text-[11px] uppercase"
+                        >
+                            {lang}
+                        </button>
+
                         {/* User Profile / Logout */}
                         <div className="relative group pt-4 hover:z-[100]">
                             <button onClick={handleLogout} className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#3F3F46] to-[#52525B] flex items-center justify-center text-white font-bold text-[11px] ring-2 ring-[#18181B] hover:ring-[#ffffff]/20 shadow-lg transition-all focus:outline-none">SA</button>
-                            <div className="absolute left-full ml-4 hidden group-hover:block z-[100] whitespace-nowrap bg-red-500/10 border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-500 rounded-lg shadow-xl pointer-events-none origin-left animate-in fade-in zoom-in-95 duration-100">Log out</div>
+                            <div className="absolute left-full ml-4 hidden group-hover:block z-[100] whitespace-nowrap bg-red-500/10 border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-500 rounded-lg shadow-xl pointer-events-none origin-left animate-in fade-in zoom-in-95 duration-100">{t('nav.logout')}</div>
                         </div>
 
                         {/* Ping Status */}
                         <div className="pt-2">
-                            <span className="relative flex h-2 w-2" title="System Online">
+                            <span className="relative flex h-2 w-2" title={t('nav.system_online')}>
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                             </span>
@@ -144,6 +154,13 @@ export default function MainLayout() {
                        <span className={cn("material-symbols-outlined text-[24px]", location.pathname.startsWith('/settings') && "text-white")}>settings</span>
                     </div>
 
+                    {/* Mobile Language Toggle */}
+                    <button 
+                        onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+                        className="md:hidden text-[#A1A1AA] hover:text-white relative flex h-11 w-11 items-center justify-center rounded-xl transition-all outline-none font-bold text-[11px] uppercase"
+                    >
+                        {lang}
+                    </button>
                 </div>
             </aside>
 
