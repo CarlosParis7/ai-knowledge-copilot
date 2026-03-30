@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
-import { Button } from '@/components/ui/button';
+
 import { Textarea } from '@/components/ui/textarea';
 import { MessageSquare, Send, Plus, Search, Map, Zap, Bookmark, MoreHorizontal } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';

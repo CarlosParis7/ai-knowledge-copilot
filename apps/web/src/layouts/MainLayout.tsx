@@ -44,10 +44,10 @@ export default function MainLayout() {
         { name: 'Prompts', href: '/prompts', icon: 'lightbulb' },
     ];
 
-    const bottomNavigation = [
-        { name: 'Settings', href: '/settings', icon: 'settings' },
-        // { name: 'Help', href: '/ayuda', icon: 'help' } // Hidden on mobile for brevity if needed
-    ];
+    /* 
+     * Bottom Actions are hardcoded directly into the layout below 
+     * for granular mobile-responsive control.
+     */
 
     const handleLogout = async () => {
         localStorage.removeItem('demo-mode');
