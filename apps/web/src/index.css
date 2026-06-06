@@ -12,17 +12,21 @@
 
 @layer base {
   :root {
-    /* ---- Canvas & surfaces (cool neutrals, faint indigo tint) ---- */
-    --canvas: oklch(0.985 0.002 265);     /* app background */
-    --surface: oklch(1 0 0);              /* cards, panels, content */
-    --surface-2: oklch(0.972 0.003 265);  /* sidebars, toolbars, subtle fills */
-    --surface-3: oklch(0.955 0.004 265);  /* hover fills, inset wells */
+    /* ---- Canvas & surfaces (cool neutrals, faint emerald tint) ----
+     * Canvas sits a clear step below the white surfaces so cards, the
+     * sidebar, and content panels read as distinct planes instead of
+     * dissolving into one white sheet. Neutrals carry a faint chroma
+     * toward the brand hue (162) for cohesion, not warmth-by-reflex. */
+    --canvas: oklch(0.955 0.006 175);     /* app background — recedes */
+    --surface: oklch(1 0 0);              /* cards, panels, content — floats */
+    --surface-2: oklch(0.975 0.005 175);  /* sidebars, toolbars, subtle fills */
+    --surface-3: oklch(0.935 0.008 175);  /* hover fills, inset wells */
 
     /* ---- Ink (text) ---- */
-    --ink: oklch(0.21 0.012 265);         /* primary text */
-    --ink-2: oklch(0.44 0.012 265);       /* secondary text — AA on surface */
-    --ink-3: oklch(0.55 0.012 265);       /* tertiary / muted, large text only */
-    --ink-on-accent: oklch(0.99 0.005 265);
+    --ink: oklch(0.21 0.014 200);         /* primary text */
+    --ink-2: oklch(0.44 0.013 200);       /* secondary text — AA on surface */
+    --ink-3: oklch(0.52 0.012 200);       /* tertiary / muted, large text only */
+    --ink-on-accent: oklch(0.99 0.005 175);
 
     /* ---- Accent (emerald green) ---- */
     --accent: oklch(0.62 0.15 162);
@@ -31,9 +35,9 @@
     --accent-soft: oklch(0.955 0.03 162);    /* tinted fill behind accent */
     --accent-ring: oklch(0.62 0.15 162 / 0.4);
 
-    /* ---- Lines ---- */
-    --line: oklch(0.92 0.004 265);        /* default borders/dividers */
-    --line-strong: oklch(0.86 0.005 265); /* input borders, emphasis */
+    /* ---- Lines (stronger so planes have a defined edge) ---- */
+    --line: oklch(0.895 0.006 175);       /* default borders/dividers */
+    --line-strong: oklch(0.83 0.008 175); /* input borders, emphasis */
 
     /* ---- Semantic state ---- */
     --success: oklch(0.55 0.13 155);
@@ -53,8 +57,8 @@
     --shadow-lg: 0 12px 32px oklch(0.21 0.012 265 / 0.12), 0 4px 8px oklch(0.21 0.012 265 / 0.05);
 
     /* ---- shadcn-compat HSL bridge (kept for legacy `*-primary` etc.) ---- */
-    --background: 252 33% 99%;
-    --foreground: 265 18% 14%;
+    --background: 175 14% 95%;
+    --foreground: 200 18% 14%;
     --card: 0 0% 100%;
     --card-foreground: 265 18% 14%;
     --popover: 0 0% 100%;
