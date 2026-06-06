@@ -51,9 +51,14 @@ const translations: Record<Language, Record<string, string>> = {
         'dash.hero_title_2': 'Logistics',
         'dash.hero_title_3': 'Workspace',
         'dash.hero_desc': 'Centralize your supply chain data. Query live SLA policies, tariff indexes, and customs guidelines natively via semantic search.',
-        'dash.stats_queries': 'Total Queries',
-        'dash.stats_docs': 'Active Documents',
-        'dash.stats_savings': 'Est. Hours Saved',
+        'dash.stats_queries': 'Total queries',
+        'dash.stats_docs': 'Active documents',
+        'dash.stats_savings': 'Hours saved',
+        'dash.quick_ask': 'Ask a question',
+        'dash.quick_ask_desc': 'Query your knowledge base in plain language.',
+        'dash.quick_upload': 'Add documents',
+        'dash.quick_upload_desc': 'Index new files so Atlas can cite them.',
+        'dash.capabilities': 'How Atlas works',
         'dash.feature_1_title': 'Deep Knowledge Graph',
         'dash.feature_1_desc': 'Multi-tenant RAG pipeline fetching exact policies across unstructured shipping manuals instantaneously.',
         'dash.feature_2_title': 'Sovereign Control',
@@ -103,9 +108,14 @@ const translations: Record<Language, Record<string, string>> = {
         'dash.hero_title_2': 'Logística',
         'dash.hero_title_3': 'Inteligente',
         'dash.hero_desc': 'Centraliza los datos de tu cadena de suministro. Consulta políticas en vivo, manuales y aduanas nativamente vía búsqueda semántica.',
-        'dash.stats_queries': 'Consultas Totales',
-        'dash.stats_docs': 'Documentos Activos',
-        'dash.stats_savings': 'Horas Ahorradas',
+        'dash.stats_queries': 'Consultas totales',
+        'dash.stats_docs': 'Documentos activos',
+        'dash.stats_savings': 'Horas ahorradas',
+        'dash.quick_ask': 'Hacer una pregunta',
+        'dash.quick_ask_desc': 'Consulta tu base de conocimiento en lenguaje natural.',
+        'dash.quick_upload': 'Agregar documentos',
+        'dash.quick_upload_desc': 'Indexa archivos nuevos para que Atlas pueda citarlos.',
+        'dash.capabilities': 'Cómo funciona Atlas',
         'dash.feature_1_title': 'Graph de Conocimiento',
         'dash.feature_1_desc': 'Busca políticas exactas a lo largo de manuales logísticos no estructurados casi instantáneamente.',
         'dash.feature_2_title': 'Control Soberano',
@@ -118,15 +128,15 @@ const translations: Record<Language, Record<string, string>> = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-    const [lang, setLangState] = useState<Language>('en');
+    const [lang, setLangState] = useState<Language>('es');
 
     useEffect(() => {
         const stored = localStorage.getItem('app-lang') as Language;
         if (stored === 'en' || stored === 'es') {
             setLangState(stored);
         } else {
-            // Auto detect from browser
-            const browserLang = navigator.language.startsWith('es') ? 'es' : 'en';
+            // Default to Spanish; only switch to English for explicitly English browsers
+            const browserLang = navigator.language.startsWith('en') ? 'en' : 'es';
             setLangState(browserLang);
         }
     }, []);

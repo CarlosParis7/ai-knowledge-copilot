@@ -1,7 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
-import { Search, Database, Clock, Sparkles, ShieldCheck, Zap } from 'lucide-react';
+import { Database, ShieldCheck, Zap, ArrowUpRight } from 'lucide-react';
 import { useLanguage } from '@/lib/i18n';
+import * as demo from '@/lib/demoStore';
 
 export default function Dashboard() {
     const { t } = useLanguage();
@@ -9,8 +11,7 @@ export default function Dashboard() {
     const { data: stats } = useQuery({
         queryKey: ['dashboard_stats'],
         queryFn: async () => {
-            const isDemo = localStorage.getItem('demo-mode') === 'true';
-            if (isDemo) return { totalQueries: 842, activeDocs: 156, hoursSaved: 312 };
+            if (demo.isDemo()) return demo.stats();
 
             const { data: session } = await supabase.auth.getSession();
             if (!session?.session?.user) return { totalQueries: 0, activeDocs: 0, hoursSaved: 0 };
@@ -18,97 +19,104 @@ export default function Dashboard() {
         }
     });
 
+    const metrics = [
+        { label: t('dash.stats_queries'), value: stats?.totalQueries, suffix: '' },
+        { label: t('dash.stats_docs'), value: stats?.activeDocs, suffix: '' },
+        { label: t('dash.stats_savings'), value: stats?.hoursSaved, suffix: 'h' },
+    ];
+
+    const capabilities = [
+        { icon: Database, title: t('dash.feature_1_title'), desc: t('dash.feature_1_desc') },
+        { icon: ShieldCheck, title: t('dash.feature_2_title'), desc: t('dash.feature_2_desc') },
+        { icon: Zap, title: t('dash.feature_3_title'), desc: t('dash.feature_3_desc') },
+    ];
+
     return (
-        <div className="flex-1 w-full flex flex-col items-center bg-[#09090B] px-8 py-16 overflow-y-auto relative">
-            
-            {/* Ambient Background Elements */}
-            <div className="absolute top-[-20%] left-[-10%] w-[600px] h-[600px] bg-primary/10 blur-[120px] rounded-full pointer-events-none"></div>
-            <div className="absolute bottom-[10%] right-[-10%] w-[400px] h-[400px] bg-primary-container/10 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="flex-1 w-full overflow-y-auto">
+            <div className="mx-auto w-full max-w-4xl px-6 md:px-10 py-10 md:py-14">
 
-            <div className="w-full max-w-5xl space-y-24 pb-12 relative z-10 flex flex-col items-center">
-                
-                {/* Hero Header (Centered) */}
-                <div className="w-full flex flex-col items-center text-center space-y-6 pt-10">
-                    <div className="inline-flex items-center gap-2 rounded-full border border-[#ffffff]/10 bg-[#ffffff]/5 px-4 py-1.5 text-xs font-semibold text-[#A1A1AA] mb-4">
-                        <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
-                        v2.0 Architecture Live
+                {/* Header */}
+                <header className="flex flex-wrap items-end justify-between gap-4">
+                    <div>
+                        <h1 className="text-[28px] font-semibold tracking-tight text-ink text-balance">
+                            {t('dash.hero_title_1')} {t('dash.hero_title_2')} {t('dash.hero_title_3')}
+                        </h1>
+                        <p className="mt-1.5 text-[15px] text-ink-2 max-w-xl text-pretty">
+                            {t('dash.hero_desc')}
+                        </p>
                     </div>
-                    <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight text-white font-headline leading-[1.1]">
-                        {t('dash.hero_title_1')}{' '}
-                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-400">
-                            {t('dash.hero_title_2')}
-                        </span><br/>
-                        {t('dash.hero_title_3')}
-                    </h1>
-                    <p className="text-[#A1A1AA] text-lg max-w-2xl leading-relaxed mt-4">
-                        {t('dash.hero_desc')}
-                    </p>
-                </div>
+                    <Link
+                        to="/chat"
+                        className="inline-flex h-10 items-center gap-2 rounded-lg bg-brand px-4 text-sm font-medium text-ink-on-accent shadow-xs hover:bg-brand-hover transition-colors"
+                    >
+                        <span className="material-symbols-outlined text-[19px]">forum</span>
+                        {t('nav.chats')}
+                    </Link>
+                </header>
 
-                {/* Core Metrics Array */}
-                <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-[#18181B]/80 backdrop-blur border border-[#ffffff]/10 rounded-2xl p-6 flex flex-col items-center text-center shadow-lg hover:border-[#ffffff]/20 transition-all">
-                        <div className="w-12 h-12 rounded-xl bg-[#ffffff]/5 flex items-center justify-center mb-4">
-                            <Search className="w-6 h-6 text-[#A1A1AA]" />
-                        </div>
-                        <h3 className="text-3xl font-bold text-white mb-1">{stats?.totalQueries?.toLocaleString() || '0'}</h3>
-                        <p className="text-[#52525B] text-sm uppercase tracking-widest font-semibold">{t('dash.stats_queries')}</p>
-                    </div>
-
-                    <div className="bg-gradient-to-b from-[#18181B] to-[#09090B] border border-[#ffffff]/10 rounded-2xl p-6 flex flex-col items-center text-center shadow-lg hover:border-[#ffffff]/20 transition-all ring-1 ring-primary/20">
-                        <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4 ring-1 ring-primary/40">
-                            <Database className="w-6 h-6 text-primary" />
-                        </div>
-                        <h3 className="text-3xl font-bold text-white mb-1">{stats?.activeDocs?.toLocaleString() || '0'}</h3>
-                        <p className="text-primary/80 text-sm uppercase tracking-widest font-bold">{t('dash.stats_docs')}</p>
-                    </div>
-
-                    <div className="bg-[#18181B]/80 backdrop-blur border border-[#ffffff]/10 rounded-2xl p-6 flex flex-col items-center text-center shadow-lg hover:border-[#ffffff]/20 transition-all">
-                        <div className="w-12 h-12 rounded-xl bg-[#ffffff]/5 flex items-center justify-center mb-4">
-                            <Clock className="w-6 h-6 text-[#A1A1AA]" />
-                        </div>
-                        <h3 className="text-3xl font-bold text-white mb-1">{stats?.hoursSaved?.toLocaleString() || '0'}</h3>
-                        <p className="text-[#52525B] text-sm uppercase tracking-widest font-semibold">{t('dash.stats_savings')}</p>
-                    </div>
-                </div>
-
-                <hr className="w-full border-[#ffffff]/5" />
-
-                {/* System Capabilities */}
-                <div className="w-full">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        <div className="space-y-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#ffffff]/5 border border-[#ffffff]/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                <Database className="h-5 w-5 text-emerald-400" />
+                {/* Metrics — inline strip, no boxes */}
+                <section className="mt-9 grid grid-cols-3 divide-x divide-line rounded-xl border border-line bg-surface">
+                    {metrics.map((m) => (
+                        <div key={m.label} className="px-5 py-4">
+                            <div className="text-[26px] font-semibold tracking-tight text-ink tabular-nums">
+                                {(m.value ?? 0).toLocaleString()}<span className="text-ink-3 text-[18px]">{m.suffix}</span>
                             </div>
-                            <h3 className="text-lg font-bold text-white tracking-wide">{t('dash.feature_1_title')}</h3>
-                            <p className="text-[#A1A1AA] text-sm leading-relaxed">
-                                {t('dash.feature_1_desc')}
-                            </p>
+                            <div className="mt-0.5 text-[13px] text-ink-2">{m.label}</div>
                         </div>
-                        
-                        <div className="space-y-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#ffffff]/5 border border-[#ffffff]/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                <ShieldCheck className="h-5 w-5 text-blue-400" />
-                            </div>
-                            <h3 className="text-lg font-bold text-white tracking-wide">{t('dash.feature_2_title')}</h3>
-                            <p className="text-[#A1A1AA] text-sm leading-relaxed">
-                                {t('dash.feature_2_desc')}
-                            </p>
-                        </div>
+                    ))}
+                </section>
 
-                        <div className="space-y-4">
-                            <div className="w-10 h-10 rounded-xl bg-[#ffffff]/5 border border-[#ffffff]/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
-                                <Zap className="h-5 w-5 text-amber-400" />
+                {/* Quick actions */}
+                <section className="mt-7 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <Link
+                        to="/chat"
+                        className="group flex items-start gap-3 rounded-xl border border-line bg-surface p-4 hover:border-line-strong hover:shadow-card transition-all"
+                    >
+                        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-brand-soft text-brand">
+                            <span className="material-symbols-outlined text-[20px]">forum</span>
+                        </span>
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-1 text-[14px] font-medium text-ink">
+                                {t('dash.quick_ask') ?? 'Ask a question'}
+                                <ArrowUpRight className="h-3.5 w-3.5 text-ink-3 group-hover:text-brand transition-colors" />
                             </div>
-                            <h3 className="text-lg font-bold text-white tracking-wide">{t('dash.feature_3_title')}</h3>
-                            <p className="text-[#A1A1AA] text-sm leading-relaxed">
-                                {t('dash.feature_3_desc')}
-                            </p>
+                            <p className="mt-0.5 text-[13px] text-ink-2">{t('dash.quick_ask_desc') ?? 'Query your knowledge base in plain language.'}</p>
                         </div>
+                    </Link>
+                    <Link
+                        to="/documents"
+                        className="group flex items-start gap-3 rounded-xl border border-line bg-surface p-4 hover:border-line-strong hover:shadow-card transition-all"
+                    >
+                        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-surface-3 text-ink-2">
+                            <span className="material-symbols-outlined text-[20px]">upload_file</span>
+                        </span>
+                        <div className="min-w-0">
+                            <div className="flex items-center gap-1 text-[14px] font-medium text-ink">
+                                {t('dash.quick_upload') ?? 'Add documents'}
+                                <ArrowUpRight className="h-3.5 w-3.5 text-ink-3 group-hover:text-brand transition-colors" />
+                            </div>
+                            <p className="mt-0.5 text-[13px] text-ink-2">{t('dash.quick_upload_desc') ?? 'Index new files so Atlas can cite them.'}</p>
+                        </div>
+                    </Link>
+                </section>
+
+                {/* Capabilities — quiet list, not a card grid */}
+                <section className="mt-10">
+                    <h2 className="text-[13px] font-semibold uppercase tracking-wide text-ink-3">
+                        {t('dash.capabilities') ?? 'How Atlas works'}
+                    </h2>
+                    <div className="mt-3 divide-y divide-line rounded-xl border border-line bg-surface">
+                        {capabilities.map((c) => (
+                            <div key={c.title} className="flex items-start gap-3.5 p-4">
+                                <c.icon className="mt-0.5 h-[18px] w-[18px] shrink-0 text-ink-3" strokeWidth={2} />
+                                <div>
+                                    <h3 className="text-[14px] font-medium text-ink">{c.title}</h3>
+                                    <p className="mt-0.5 text-[13px] leading-relaxed text-ink-2">{c.desc}</p>
+                                </div>
+                            </div>
+                        ))}
                     </div>
-                </div>
-
+                </section>
             </div>
         </div>
     );

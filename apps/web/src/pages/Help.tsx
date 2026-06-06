@@ -1,180 +1,148 @@
-import { HelpCircle, ShieldCheck, FileUp, MessageSquare, Wrench, ExternalLink, Anchor, Plane, PackageSearch, ClipboardCheck } from 'lucide-react';
+import { ShieldCheck, FileUp, MessageSquare, Wrench, ExternalLink, Anchor, Plane, PackageSearch, ClipboardCheck } from 'lucide-react';
 
 export default function Help() {
+    const workflows = [
+        {
+            icon: ShieldCheck,
+            title: 'Buenas prácticas',
+            sub: 'Seguridad y privacidad',
+            items: [
+                'Separa los inquilinos con políticas RLS estrictas.',
+                'Evita subir datos personales o credenciales financieras.',
+                'Apóyate en las citas de la IA para auditorías formales.',
+            ],
+        },
+        {
+            icon: FileUp,
+            title: 'Ingesta de datos',
+            sub: 'SOPs y tarifas',
+            items: [
+                'Segmenta los archivos por tipo de ruta (marítimo, aéreo, local).',
+                "Espera el estado 'Indexado' antes de consultar políticas.",
+                'Mantén documentos atómicos, no manuales monolíticos.',
+            ],
+        },
+        {
+            icon: MessageSquare,
+            title: 'Chat avanzado',
+            sub: 'Prompts',
+            items: [
+                'Declara los Incoterms al preguntar por recargos.',
+                'Añade "cita las fuentes" para resultados auditables.',
+                'Pide formatos como "Devuélvelo como checklist".',
+            ],
+        },
+    ];
+
+    const interactions = [
+        { icon: Anchor, title: 'Carga marítima', items: ['"Extrae recargos de destino para LCL CN→PA (CIF)."', '"Revisa la documentación mínima de BL para carga especializada."'] },
+        { icon: Plane, title: 'Carga aérea', items: ['"Redacta un checklist de AWB para tránsito SLA expedito."', '"Verifica los requisitos de aceptación en almacén para DGR Clase 3."'] },
+        { icon: PackageSearch, title: 'PO Box', items: ['"Lista los artículos prohibidos según la política de almacén vigente."', '"Resume las reglas de consolidación y cálculo de peso."'] },
+    ];
+
     return (
-        <div className="flex-1 w-full flex flex-col items-center bg-[#09090B] px-8 py-12 overflow-y-auto">
-            <div className="w-full max-w-5xl space-y-12 pb-12">
-                
-                {/* Header Page */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-4">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-[#ffffff]/10 bg-[#ffffff]/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-widest text-[#A1A1AA]">
-                            <HelpCircle className="h-3.5 w-3.5 text-primary" />
-                            Help & Resources
-                        </div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white font-headline">Knowledge Base Guide</h1>
-                        <p className="text-[#A1A1AA] text-[15px] pt-1 max-w-2xl leading-relaxed">
-                            Built for hybrid logistics operations (PO Box, Ocean & Air freight). Standardize SOPs, Customs, DG compliance, surcharges, and SLAs with fully auditable, source-backed AI responses.
+        <div className="flex-1 w-full overflow-y-auto">
+            <div className="mx-auto w-full max-w-4xl px-6 md:px-10 py-10 md:py-12">
+
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                    <div>
+                        <h1 className="text-[26px] font-semibold tracking-tight text-ink">Guía</h1>
+                        <p className="text-ink-2 mt-1.5 text-[15px] max-w-2xl leading-relaxed">
+                            Diseñado para operaciones logísticas híbridas (PO Box, carga marítima y aérea). Estandariza SOPs, aduanas, cumplimiento DG, recargos y SLAs con respuestas respaldadas por fuentes.
                         </p>
                     </div>
-
-                    <a href="https://supabase.com/docs" target="_blank" rel="noreferrer" className="shrink-0 bg-[#18181B] border border-[#ffffff]/10 text-white hover:bg-[#ffffff]/10 font-semibold rounded-xl shadow-sm h-11 px-5 flex items-center transition-all">
-                        Technical Docs
-                        <ExternalLink className="ml-2 h-4 w-4 text-[#A1A1AA]" />
+                    <a href="https://supabase.com/docs" target="_blank" rel="noreferrer" className="shrink-0 inline-flex h-10 items-center gap-2 rounded-lg border border-line-strong bg-surface px-4 text-sm font-medium text-ink shadow-xs hover:bg-surface-2 transition-colors">
+                        Documentación técnica
+                        <ExternalLink className="h-4 w-4 text-ink-3" />
                     </a>
                 </div>
 
-                <hr className="border-[#ffffff]/5" />
-
-                {/* Core Modifiers */}
-                <div>
-                    <h2 className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA] mb-6">Core Workflows</h2>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="rounded-[20px] border border-[#ffffff]/5 hover:border-[#ffffff]/20 bg-[#18181B] p-6 shadow-sm transition-colors group">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="rounded-xl bg-[#ffffff]/5 border border-[#ffffff]/5 p-3 group-hover:bg-primary/20 group-hover:border-primary/30 transition-colors">
-                                    <ShieldCheck className="h-5 w-5 text-primary" />
+                {/* Core workflows */}
+                <h2 className="mt-10 text-[13px] font-semibold uppercase tracking-wide text-ink-3">Flujos principales</h2>
+                <div className="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+                    {workflows.map((w) => (
+                        <div key={w.title} className="rounded-xl border border-line bg-surface p-5 shadow-card">
+                            <div className="flex items-center gap-3 mb-4">
+                                <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-brand-soft">
+                                    <w.icon className="h-[18px] w-[18px] text-brand" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-semibold text-white">Best Practices</p>
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#52525B]">Security & Privacy</p>
+                                    <p className="text-[14px] font-medium text-ink">{w.title}</p>
+                                    <p className="text-[12px] text-ink-3">{w.sub}</p>
                                 </div>
                             </div>
-                            <ul className="space-y-2.5 text-[13px] text-[#A1A1AA] leading-relaxed">
-                                <li>• Segregate tenants via strict RLS policies.</li>
-                                <li>• Avoid uploading PII or raw financial credentials.</li>
-                                <li>• Always rely on AI citations for formal auditing.</li>
+                            <ul className="space-y-2 text-[13px] text-ink-2 leading-relaxed">
+                                {w.items.map((it) => <li key={it} className="flex gap-2"><span className="text-ink-3">·</span>{it}</li>)}
                             </ul>
                         </div>
-
-                        <div className="rounded-[20px] border border-[#ffffff]/5 hover:border-[#ffffff]/20 bg-[#18181B] p-6 shadow-sm transition-colors group">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="rounded-xl bg-[#ffffff]/5 border border-[#ffffff]/5 p-3 group-hover:bg-primary/20 group-hover:border-primary/30 transition-colors">
-                                    <FileUp className="h-5 w-5 text-primary" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-white">Data Ingestion</p>
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#52525B]">SOPs & Tariffs</p>
-                                </div>
-                            </div>
-                            <ul className="space-y-2.5 text-[13px] text-[#A1A1AA] leading-relaxed">
-                                <li>• Segment files by routing type (Ocean, Air, Domestic).</li>
-                                <li>• Wait for 'Indexed' status before querying specific policies.</li>
-                                <li>• Maintain atomic documents rather than giant monolithic manuals.</li>
-                            </ul>
-                        </div>
-
-                        <div className="rounded-[20px] border border-[#ffffff]/5 hover:border-[#ffffff]/20 bg-[#18181B] p-6 shadow-sm transition-colors group">
-                            <div className="flex items-center gap-3 mb-5">
-                                <div className="rounded-xl bg-[#ffffff]/5 border border-[#ffffff]/5 p-3 group-hover:bg-primary/20 group-hover:border-primary/30 transition-colors">
-                                    <MessageSquare className="h-5 w-5 text-primary" />
-                                </div>
-                                <div>
-                                    <p className="text-sm font-semibold text-white">Advanced Chat</p>
-                                    <p className="text-[11px] font-bold uppercase tracking-widest text-[#52525B]">Prompting</p>
-                                </div>
-                            </div>
-                            <ul className="space-y-2.5 text-[13px] text-[#A1A1AA] leading-relaxed">
-                                <li>• Declare explicit Incoterms when asking about surcharges.</li>
-                                <li>• Append "cite sources" to guarantee auditable outputs.</li>
-                                <li>• Request formats like "Return as a checklist".</li>
-                            </ul>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
-                {/* Specific Process Modules */}
-                <div>
-                    <h2 className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA] mb-6">Suggested Interactions</h2>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <div className="rounded-[20px] border border-[#ffffff]/5 bg-[#18181B] p-6 shadow-sm relative overflow-hidden">
-                            <Anchor className="absolute -bottom-4 -right-4 h-32 w-32 text-white opacity-[0.03] rotate-12" />
-                            <div className="flex items-center gap-3 mb-4">
-                                <Anchor className="h-5 w-5 text-[#A1A1AA]" />
-                                <h2 className="text-base font-bold text-white tracking-wide">Ocean Freight</h2>
+                {/* Suggested interactions */}
+                <h2 className="mt-10 text-[13px] font-semibold uppercase tracking-wide text-ink-3">Interacciones sugeridas</h2>
+                <div className="mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+                    {interactions.map((s) => (
+                        <div key={s.title} className="rounded-xl border border-line bg-surface p-5 shadow-card">
+                            <div className="flex items-center gap-2.5 mb-3">
+                                <s.icon className="h-[18px] w-[18px] text-ink-3" />
+                                <h3 className="text-[14px] font-medium text-ink">{s.title}</h3>
                             </div>
-                            <ul className="space-y-3 text-[13px] text-[#A1A1AA] leading-relaxed relative z-10">
-                                <li>"Extract destination surcharges for LCL CN→PA (CIF)."</li>
-                                <li>"Check minimum BL documentation for specialized cargo."</li>
+                            <ul className="space-y-2.5 text-[13px] text-ink-2 leading-relaxed">
+                                {s.items.map((it) => <li key={it}>{it}</li>)}
                             </ul>
                         </div>
-
-                        <div className="rounded-[20px] border border-[#ffffff]/5 bg-[#18181B] p-6 shadow-sm relative overflow-hidden">
-                            <Plane className="absolute -bottom-4 -right-4 h-32 w-32 text-white opacity-[0.03] -rotate-12" />
-                            <div className="flex items-center gap-3 mb-4">
-                                <Plane className="h-5 w-5 text-[#A1A1AA]" />
-                                <h2 className="text-base font-bold text-white tracking-wide">Air Freight</h2>
-                            </div>
-                            <ul className="space-y-3 text-[13px] text-[#A1A1AA] leading-relaxed relative z-10">
-                                <li>"Draft an AWB checklist for expedited transit SLA."</li>
-                                <li>"Verify DGR Class 3 minimum warehouse acceptance requirements."</li>
-                            </ul>
-                        </div>
-
-                        <div className="rounded-[20px] border border-[#ffffff]/5 bg-[#18181B] p-6 shadow-sm relative overflow-hidden">
-                            <PackageSearch className="absolute -bottom-4 -right-4 h-32 w-32 text-white opacity-[0.03]" />
-                            <div className="flex items-center gap-3 mb-4">
-                                <PackageSearch className="h-5 w-5 text-[#A1A1AA]" />
-                                <h2 className="text-base font-bold text-white tracking-wide">PO Box</h2>
-                            </div>
-                            <ul className="space-y-3 text-[13px] text-[#A1A1AA] leading-relaxed relative z-10">
-                                <li>"List our prohibited items based on latest warehouse policy."</li>
-                                <li>"Summarize consolidation and weight calculation rules."</li>
-                            </ul>
-                        </div>
-                    </div>
+                    ))}
                 </div>
 
-                {/* Troubleshooting */}
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <div className="rounded-[20px] border border-[#ffffff]/5 bg-[#18181B] p-6 shadow-sm">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 rounded-xl bg-red-500/10 flex items-center justify-center border border-red-500/20">
-                                <Wrench className="h-4 w-4 text-red-400" />
+                {/* Troubleshooting & FAQ */}
+                <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-3">
+                    <div className="rounded-xl border border-line bg-surface p-5 shadow-card">
+                        <div className="flex items-center gap-2.5 mb-4">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-danger-soft">
+                                <Wrench className="h-4 w-4 text-danger" />
                             </div>
-                            <h2 className="text-base font-bold text-white">Troubleshooting</h2>
+                            <h2 className="text-[15px] font-semibold text-ink">Solución de problemas</h2>
                         </div>
-                        <div className="space-y-4">
-                            <div className="rounded-xl border border-[#ffffff]/5 bg-[#09090B]/50 p-5">
-                                <p className="font-semibold text-white text-[14px]">"Failed to fetch" on Login</p>
-                                <p className="mt-1.5 text-[13px] text-[#A1A1AA] leading-relaxed">
-                                    Supabase instance might be offline or environment variables are missing. Switch to the built-in Sandbox mode using <span className="text-primary font-mono bg-primary/10 px-1.5 py-0.5 rounded">admin@example.com</span>.
+                        <div className="space-y-3">
+                            <div className="rounded-lg border border-line bg-surface-2 p-4">
+                                <p className="font-medium text-ink text-[14px]">"Failed to fetch" al iniciar sesión</p>
+                                <p className="mt-1 text-[13px] text-ink-2 leading-relaxed">
+                                    Supabase puede estar apagado o faltan variables de entorno. Usa el modo Sandbox con <span className="font-mono text-[12px] text-brand bg-brand-soft px-1.5 py-0.5 rounded">admin@example.com</span>.
                                 </p>
                             </div>
-
-                            <div className="rounded-xl border border-[#ffffff]/5 bg-[#09090B]/50 p-5">
-                                <p className="font-semibold text-white text-[14px]">Documents stuck in "Processing"</p>
-                                <p className="mt-1.5 text-[13px] text-[#A1A1AA] leading-relaxed">
-                                    Verify Edge Functions are deployed. In local development, ensure all database migrations and embedding triggers are successfully applied via CLI.
+                            <div className="rounded-lg border border-line bg-surface-2 p-4">
+                                <p className="font-medium text-ink text-[14px]">Documentos atascados en "Processing"</p>
+                                <p className="mt-1 text-[13px] text-ink-2 leading-relaxed">
+                                    Verifica que las Edge Functions estén desplegadas y las migraciones aplicadas con la CLI de Supabase.
                                 </p>
                             </div>
                         </div>
                     </div>
 
-                    <div className="rounded-[20px] border border-[#ffffff]/5 bg-[#18181B] p-6 shadow-sm">
-                        <div className="flex items-center gap-3 mb-6">
-                            <div className="w-10 h-10 rounded-xl bg-[#ffffff]/5 flex items-center justify-center border border-[#ffffff]/10">
-                                <ClipboardCheck className="h-4 w-4 text-[#A1A1AA]" />
+                    <div className="rounded-xl border border-line bg-surface p-5 shadow-card">
+                        <div className="flex items-center gap-2.5 mb-4">
+                            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-surface-3">
+                                <ClipboardCheck className="h-4 w-4 text-ink-2" />
                             </div>
-                            <h2 className="text-base font-bold text-white">Frequently Asked Questions</h2>
+                            <h2 className="text-[15px] font-semibold text-ink">Preguntas frecuentes</h2>
                         </div>
-                        <div className="space-y-4">
-                            <div className="rounded-xl border border-[#ffffff]/5 bg-[#09090B]/50 p-5">
-                                <p className="font-semibold text-white text-[14px]">How secure is my data?</p>
-                                <p className="mt-1.5 text-[13px] text-[#A1A1AA] leading-relaxed">
-                                    Tenant isolation is strictly enforced via PostgreSQL Row Level Security (RLS). Users can only ever fetch documents inherently mapped to their <code className="font-mono text-[11px] text-[#71717A]">company_id</code>.
+                        <div className="space-y-3">
+                            <div className="rounded-lg border border-line bg-surface-2 p-4">
+                                <p className="font-medium text-ink text-[14px]">¿Qué tan seguros están mis datos?</p>
+                                <p className="mt-1 text-[13px] text-ink-2 leading-relaxed">
+                                    El aislamiento por inquilino se aplica con Row Level Security de PostgreSQL. Cada usuario solo accede a los documentos de su <code className="font-mono text-[12px] text-ink-2">company_id</code>.
                                 </p>
                             </div>
-                            <div className="rounded-xl border border-[#ffffff]/5 bg-[#09090B]/50 p-5">
-                                <p className="font-semibold text-white text-[14px]">How can I improve AI source mapping?</p>
-                                <p className="mt-1.5 text-[13px] text-[#A1A1AA] leading-relaxed">
-                                    Ingest concise, well formatted documents rather than 200-page scanned PDFs. Tables and explicit markdown headings dramatically improve the semantic chunking algorithms.
+                            <div className="rounded-lg border border-line bg-surface-2 p-4">
+                                <p className="font-medium text-ink text-[14px]">¿Cómo mejoro el mapeo de fuentes?</p>
+                                <p className="mt-1 text-[13px] text-ink-2 leading-relaxed">
+                                    Sube documentos concisos y bien formateados. Las tablas y los encabezados markdown mejoran el chunking semántico.
                                 </p>
                             </div>
                         </div>
                     </div>
                 </div>
-
             </div>
         </div>
     );

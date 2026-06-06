@@ -35,21 +35,20 @@ export default function MainLayout() {
     }, [navigate]);
 
     if (loading) {
-        return <div className="min-h-screen bg-[#09090B] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-4 border-primary border-t-transparent animate-spin"></div></div>;
+        return (
+            <div className="min-h-[100dvh] bg-canvas flex items-center justify-center">
+                <div className="w-7 h-7 rounded-full border-[2.5px] border-line-strong border-t-brand animate-spin" />
+            </div>
+        );
     }
 
     const navigation = [
         { name: t('nav.dashboard'), href: '/dashboard', icon: 'home' },
-        { name: t('nav.chats'), href: '/chat', icon: 'chat_bubble' },
+        { name: t('nav.chats'), href: '/chat', icon: 'forum' },
         { name: t('nav.knowledge'), href: '/documents', icon: 'library_books' },
-        { name: t('nav.sources'), href: '/sources', icon: 'cloud_queue' },
+        { name: t('nav.sources'), href: '/sources', icon: 'cloud_sync' },
         { name: t('nav.prompts'), href: '/prompts', icon: 'lightbulb' },
     ];
-
-    /* 
-     * Bottom Actions are hardcoded directly into the layout below 
-     * for granular mobile-responsive control.
-     */
 
     const handleLogout = async () => {
         localStorage.removeItem('demo-mode');
@@ -57,118 +56,127 @@ export default function MainLayout() {
         window.location.href = '/login';
     };
 
+    const NavItem = ({ href, icon, name }: { href: string; icon: string; name: string }) => {
+        const isActive = location.pathname.startsWith(href);
+        return (
+            <Link
+                to={href}
+                aria-current={isActive ? 'page' : undefined}
+                className={cn(
+                    'group flex items-center gap-3 rounded-lg px-3 h-10 text-[14px] font-medium transition-colors duration-150',
+                    isActive
+                        ? 'bg-brand-soft text-brand'
+                        : 'text-ink-2 hover:bg-surface-3 hover:text-ink'
+                )}
+            >
+                <span
+                    className={cn(
+                        'material-symbols-outlined text-[21px]',
+                        isActive ? 'text-brand' : 'text-ink-3 group-hover:text-ink-2'
+                    )}
+                    style={isActive ? { fontVariationSettings: "'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24" } : undefined}
+                >
+                    {icon}
+                </span>
+                <span className="truncate">{name}</span>
+            </Link>
+        );
+    };
+
     return (
-        <div className="bg-[#09090B] text-[#EBEBEB] font-body selection:bg-primary/30 min-h-[100dvh] flex flex-col md:flex-row">
+        <div className="bg-canvas text-ink font-body min-h-[100dvh] flex flex-col md:flex-row">
             <CommandPalette />
-            
-            {/* Nav Rail Component - Fixed left on Desktop, Fixed bottom on Mobile */}
-            <aside className="fixed z-[60] bg-[#18181B] flex 
-                              md:left-0 md:top-0 md:h-screen md:w-[72px] md:flex-col md:border-r md:border-t-0 border-[#ffffff]/5 py-2 md:py-6
-                              max-md:bottom-0 max-md:left-0 max-md:w-full max-md:h-[68px] max-md:flex-row max-md:border-t max-md:border-none shadow-[0_-10px_40px_rgba(0,0,0,0.5)] md:shadow-none justify-around md:justify-start items-center">
-                
-                {/* Logo (Desktop Only) */}
-                <div className="hidden md:flex w-10 h-10 rounded-2xl bg-gradient-to-br from-primary to-primary-container items-center justify-center shadow-lg shadow-primary/20 md:mb-8 shrink-0 cursor-default" title="Atlas Copilot">
-                    <span className="material-symbols-outlined text-white text-[22px]">explore</span>
-                </div>
-                
-                {/* Primary Nav */}
-                <nav className="flex md:flex-1 md:flex-col flex-row items-center justify-around md:justify-start w-full md:space-y-3 space-x-1 md:space-x-0 px-2 md:px-0">
-                    {navigation.map((item) => {
-                        const isActive = location.pathname.startsWith(item.href);
-                        return (
-                            <Link
-                                key={item.name}
-                                to={item.href}
-                                className={cn(
-                                    isActive
-                                        ? 'bg-[#ffffff]/10 text-white shadow-sm ring-1 ring-[#ffffff]/5'
-                                        : 'text-[#A1A1AA] hover:text-white md:hover:bg-[#ffffff]/5',
-                                    'group relative flex h-11 w-11 md:h-11 md:w-11 items-center justify-center rounded-xl transition-all duration-200 hover:z-[100]'
-                                )}
-                            >
-                                <span className={cn(
-                                    "material-symbols-outlined text-[24px] transition-colors",
-                                    isActive ? "text-primary" : "text-[#A1A1AA] md:group-hover:text-white"
-                                )}>{item.icon}</span>
-                                
-                                {/* Tooltip (Desktop Only) */}
-                                <div className="hidden md:absolute md:left-full md:ml-4 md:group-hover:block z-[100] whitespace-nowrap bg-[#27272A] border border-[#ffffff]/10 px-3 py-1.5 text-xs font-semibold text-white rounded-lg shadow-xl shadow-black/50 pointer-events-none origin-left animate-in md:fade-in md:zoom-in-95 duration-100">
-                                    {item.name}
-                                </div>
-                            </Link>
-                        );
-                    })}
+
+            {/* ===== Desktop sidebar ===== */}
+            <aside className="hidden md:flex fixed left-0 top-0 z-40 h-screen w-[248px] flex-col border-r border-line bg-surface-2 px-3 py-4">
+                {/* Brand */}
+                <Link to="/dashboard" className="flex items-center gap-2.5 px-2 pb-5 pt-1">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand text-ink-on-accent shadow-xs">
+                        <span className="material-symbols-outlined text-[20px]" style={{ fontVariationSettings: "'FILL' 1, 'wght' 500" }}>explore</span>
+                    </span>
+                    <span className="text-[15px] font-semibold tracking-tight text-ink">Atlas Copilot</span>
+                </Link>
+
+                <nav className="flex flex-col gap-1">
+                    {navigation.map((item) => <NavItem key={item.href} {...item} />)}
                 </nav>
 
-                {/* Bottom Actions (Desktop Only / Condensed on Mobile) */}
-                <div className="flex md:w-full md:flex-col flex-row items-center md:space-y-3 space-x-1 md:space-x-0 px-2 md:px-0 md:mt-auto shrink-0 justify-center">
-                    
-                    {/* Settings Icon - hidden on mobile, placed elsewhere ideally or kept */}
-                    <Link
-                        to="/settings"
-                        className={cn(
-                            location.pathname.startsWith('/settings')
-                                ? 'bg-[#ffffff]/10 text-white shadow-sm ring-1 ring-[#ffffff]/5'
-                                : 'text-[#A1A1AA] hover:text-white md:hover:bg-[#ffffff]/5',
-                            'hidden md:flex group relative h-11 w-11 items-center justify-center rounded-xl transition-all duration-200 hover:z-[100]'
-                        )}
-                    >
-                        <span className="material-symbols-outlined text-[24px]">settings</span>
-                        <div className="hidden md:absolute md:left-full md:ml-4 md:group-hover:block z-[100] whitespace-nowrap bg-[#27272A] border border-[#ffffff]/10 px-3 py-1.5 text-xs font-semibold text-white rounded-lg shadow-xl shadow-black/50 pointer-events-none">
-                            {t('nav.settings')}
-                        </div>
-                    </Link>
+                <div className="mt-auto flex flex-col gap-1 border-t border-line pt-3">
+                    <NavItem href="/settings" icon="settings" name={t('nav.settings')} />
+                    <NavItem href="/ayuda" icon="help" name={t('nav.help')} />
 
-                    {/* Desktop Utility (Help, Logout, Ping) - Hidden on Mobile to save space */}
-                    <div className="hidden md:flex flex-col items-center w-full space-y-3">
-                        <Link to="/ayuda" className="text-[#A1A1AA] hover:text-white group relative flex h-11 w-11 items-center justify-center rounded-xl hover:bg-[#ffffff]/5 transition-all">
-                            <span className="material-symbols-outlined text-[24px]">help</span>
-                            <div className="absolute left-full ml-4 hidden group-hover:block z-[100] whitespace-nowrap bg-[#27272A] border border-[#ffffff]/10 px-3 py-1.5 text-xs font-semibold text-white rounded-lg shadow-xl shadow-black/50 pointer-events-none">{t('nav.help')}</div>
-                        </Link>
-                        
-                        {/* Language Toggle */}
-                        <button 
-                            onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
-                            className="text-[#A1A1AA] hover:text-white group relative flex h-11 w-11 items-center justify-center rounded-xl hover:bg-[#ffffff]/5 transition-all outline-none font-bold text-[11px] uppercase"
-                        >
-                            {lang}
-                        </button>
-
-                        {/* User Profile / Logout */}
-                        <div className="relative group pt-4 hover:z-[100]">
-                            <button onClick={handleLogout} className="w-10 h-10 rounded-full bg-gradient-to-tr from-[#3F3F46] to-[#52525B] flex items-center justify-center text-white font-bold text-[11px] ring-2 ring-[#18181B] hover:ring-[#ffffff]/20 shadow-lg transition-all focus:outline-none">SA</button>
-                            <div className="absolute left-full ml-4 hidden group-hover:block z-[100] whitespace-nowrap bg-red-500/10 border border-red-500/20 px-3 py-1.5 text-xs font-semibold text-red-500 rounded-lg shadow-xl pointer-events-none origin-left animate-in fade-in zoom-in-95 duration-100">{t('nav.logout')}</div>
-                        </div>
-
-                        {/* Ping Status */}
-                        <div className="pt-2">
-                            <span className="relative flex h-2 w-2" title={t('nav.system_online')}>
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                            </span>
-                        </div>
-                    </div>
-
-                    {/* Mobile Settings Access - Replacing User Avatar */}
-                    <div className="md:hidden flex relative group items-center justify-center h-11 w-11 text-[#A1A1AA] hover:text-white transition-colors" onClick={() => navigate('/settings')}>
-                       <span className={cn("material-symbols-outlined text-[24px]", location.pathname.startsWith('/settings') && "text-white")}>settings</span>
-                    </div>
-
-                    {/* Mobile Language Toggle */}
-                    <button 
+                    <button
                         onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
-                        className="md:hidden text-[#A1A1AA] hover:text-white relative flex h-11 w-11 items-center justify-center rounded-xl transition-all outline-none font-bold text-[11px] uppercase"
+                        className="flex items-center gap-3 rounded-lg px-3 h-10 text-[14px] font-medium text-ink-2 hover:bg-surface-3 hover:text-ink transition-colors"
                     >
-                        {lang}
+                        <span className="material-symbols-outlined text-[21px] text-ink-3">language</span>
+                        <span>{lang === 'en' ? 'English' : 'Español'}</span>
+                        <span className="ml-auto text-[11px] font-semibold uppercase text-ink-3">{lang}</span>
                     </button>
+
+                    {/* Account */}
+                    <div className="mt-2 flex items-center gap-2.5 rounded-lg px-2 py-2">
+                        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-soft text-[12px] font-semibold text-brand">SA</div>
+                        <div className="min-w-0 flex-1">
+                            <p className="truncate text-[13px] font-medium text-ink">System Admin</p>
+                            <p className="flex items-center gap-1 text-[11px] text-ink-3">
+                                <span className="inline-block h-1.5 w-1.5 rounded-full bg-success" />
+                                {t('nav.system_online')}
+                            </p>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            title={t('nav.logout')}
+                            className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 hover:bg-danger-soft hover:text-danger transition-colors"
+                        >
+                            <span className="material-symbols-outlined text-[19px]">logout</span>
+                        </button>
+                    </div>
                 </div>
             </aside>
 
-            {/* Edge to Edge Main Area */}
-            {/* mb-[68px] prevents content from hiding behind the bottom bar on mobile */}
-            {/* md:mb-0 removes it for desktop */}
-            <main className="flex-1 w-full bg-[#09090B] overflow-hidden min-h-[100dvh] max-md:pb-[68px] md:ml-[72px] md:w-[calc(100%-72px)] flex flex-col relative">
-                <div className="flex-1 w-full h-full flex flex-col items-stretch overflow-hidden">
+            {/* ===== Mobile top bar ===== */}
+            <header className="md:hidden sticky top-0 z-40 flex h-14 items-center justify-between border-b border-line bg-surface-2/95 backdrop-blur px-4">
+                <Link to="/dashboard" className="flex items-center gap-2">
+                    <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-brand text-ink-on-accent">
+                        <span className="material-symbols-outlined text-[18px]" style={{ fontVariationSettings: "'FILL' 1" }}>explore</span>
+                    </span>
+                    <span className="text-[14px] font-semibold text-ink">Atlas Copilot</span>
+                </Link>
+                <button
+                    onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
+                    className="text-[12px] font-semibold uppercase text-ink-2"
+                >
+                    {lang}
+                </button>
+            </header>
+
+            {/* ===== Mobile bottom nav ===== */}
+            <nav className="md:hidden fixed bottom-0 left-0 z-40 flex h-16 w-full items-stretch justify-around border-t border-line bg-surface-2/95 backdrop-blur px-1">
+                {[...navigation, { name: t('nav.settings'), href: '/settings', icon: 'settings' }].map((item) => {
+                    const isActive = location.pathname.startsWith(item.href);
+                    return (
+                        <Link
+                            key={item.href}
+                            to={item.href}
+                            aria-current={isActive ? 'page' : undefined}
+                            className="flex flex-1 flex-col items-center justify-center gap-0.5"
+                        >
+                            <span
+                                className={cn('material-symbols-outlined text-[23px]', isActive ? 'text-brand' : 'text-ink-3')}
+                                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                            >
+                                {item.icon}
+                            </span>
+                            <span className={cn('text-[10px] font-medium', isActive ? 'text-brand' : 'text-ink-3')}>{item.name}</span>
+                        </Link>
+                    );
+                })}
+            </nav>
+
+            {/* ===== Main ===== */}
+            <main className="flex-1 w-full bg-canvas min-h-[100dvh] flex flex-col md:ml-[248px] max-md:pb-16">
+                <div className="flex-1 w-full flex flex-col overflow-hidden">
                     <Outlet />
                 </div>
             </main>

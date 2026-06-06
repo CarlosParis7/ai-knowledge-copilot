@@ -1,6 +1,5 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-    darkMode: ["class"],
     content: [
         "./index.html",
         "./src/**/*.{js,ts,jsx,tsx}",
@@ -8,64 +7,51 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                headline: ['Manrope', 'sans-serif'],
+                headline: ['Inter', 'sans-serif'],
                 body: ['Inter', 'sans-serif'],
-                label: ['Inter', 'sans-serif']
+                label: ['Inter', 'sans-serif'],
             },
             colors: {
-                "on-background": "#e5e2e3",
-                "background": "#131314",
-                "outline": "#8c90a1",
-                "surface-container-lowest": "#0e0e0f",
-                "inverse-primary": "#0058ca",
-                "on-secondary": "#480081",
-                "on-primary": "#002d6e",
-                "secondary-container": "#7701d0",
-                "on-error": "#690005",
-                "on-secondary-fixed-variant": "#6700b5",
-                "tertiary": "#00dbe9",
-                "on-secondary-fixed": "#2c0051",
-                "primary-fixed-dim": "#b0c6ff",
-                "error": "#ffb4ab",
-                "on-tertiary-container": "#e3fdff",
-                "primary-container": "#0a6bee",
-                "on-primary-fixed": "#001944",
-                "tertiary-container": "#007e86",
-                "surface-container-highest": "#353436",
-                "on-tertiary": "#00363a",
-                "outline-variant": "#424656",
-                "inverse-on-surface": "#313031",
-                "on-surface-variant": "#c2c6d8",
-                "secondary-fixed": "#efdbff",
-                "on-secondary-container": "#dcb7ff",
-                "error-container": "#93000a",
-                "surface-container-low": "#1c1b1c",
-                "on-surface": "#e5e2e3",
-                "surface-dim": "#131314",
-                "surface": "#131314",
-                "on-tertiary-fixed": "#002022",
-                "surface-container-high": "#2a2a2b",
-                "on-primary-fixed-variant": "#00429b",
-                "tertiary-fixed-dim": "#00dbe9",
-                "surface-variant": "#353436",
-                "surface-bright": "#39393a",
-                "on-error-container": "#ffdad6",
-                "tertiary-fixed": "#7df4ff",
-                "on-tertiary-fixed-variant": "#004f54",
-                "surface-container": "#201f20",
-                "inverse-surface": "#e5e2e3",
-                "surface-tint": "#b0c6ff",
-                "primary-fixed": "#d9e2ff",
-                "on-primary-container": "#f8f7ff",
-                "secondary-fixed-dim": "#dcb8ff",
-                "secondary": "#dcb8ff",
-                "primary": "#b0c6ff",
-                
-                // Existing shadcn variables mapped roughly
+                // Semantic light-theme tokens (OKLCH via CSS vars)
+                canvas: "var(--canvas)",
+                surface: {
+                    DEFAULT: "var(--surface)",
+                    2: "var(--surface-2)",
+                    3: "var(--surface-3)",
+                },
+                ink: {
+                    DEFAULT: "var(--ink)",
+                    2: "var(--ink-2)",
+                    3: "var(--ink-3)",
+                    "on-accent": "var(--ink-on-accent)",
+                },
+                line: {
+                    DEFAULT: "var(--line)",
+                    strong: "var(--line-strong)",
+                },
+                brand: {
+                    DEFAULT: "var(--accent)",
+                    hover: "var(--accent-hover)",
+                    press: "var(--accent-press)",
+                    soft: "var(--accent-soft)",
+                },
+                success: { DEFAULT: "var(--success)", soft: "var(--success-soft)" },
+                warning: { DEFAULT: "var(--warning)", soft: "var(--warning-soft)" },
+                danger: { DEFAULT: "var(--danger)", soft: "var(--danger-soft)" },
+
+                // shadcn-compat bridge (legacy utilities keep working)
                 border: "hsl(var(--border))",
                 input: "hsl(var(--input))",
                 ring: "hsl(var(--ring))",
+                background: "hsl(var(--background))",
                 foreground: "hsl(var(--foreground))",
+                primary: {
+                    DEFAULT: "var(--accent)",
+                    foreground: "var(--ink-on-accent)",
+                    container: "var(--accent-hover)",
+                },
+                "primary-foreground": "var(--ink-on-accent)",
+                "primary-container": "var(--accent-hover)",
                 destructive: {
                     DEFAULT: "hsl(var(--destructive))",
                     foreground: "hsl(var(--destructive-foreground))",
@@ -75,7 +61,7 @@ export default {
                     foreground: "hsl(var(--muted-foreground))",
                 },
                 accent: {
-                    DEFAULT: "hsl(var(--accent))",
+                    DEFAULT: "hsl(var(--accent-compat))",
                     foreground: "hsl(var(--accent-foreground))",
                 },
                 popover: {
@@ -88,12 +74,19 @@ export default {
                 },
             },
             borderRadius: {
+                xl: "calc(var(--radius) + 4px)",
                 lg: "var(--radius)",
                 md: "calc(var(--radius) - 2px)",
                 sm: "calc(var(--radius) - 4px)",
             },
+            boxShadow: {
+                xs: "var(--shadow-xs)",
+                card: "var(--shadow-sm)",
+                pop: "var(--shadow-md)",
+                float: "var(--shadow-lg)",
+            },
             animation: {
-                "shimmer": "shimmer 2s linear infinite",
+                "shimmer": "shimmer 1.6s ease-in-out infinite",
             },
             keyframes: {
                 shimmer: {
@@ -105,6 +98,6 @@ export default {
     },
     plugins: [
         require("tailwindcss-animate"),
-        require("@tailwindcss/typography")
+        require("@tailwindcss/typography"),
     ],
 }

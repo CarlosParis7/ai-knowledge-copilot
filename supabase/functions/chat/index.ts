@@ -25,7 +25,7 @@ serve(async (req) => {
         if (userError || !user) throw new Error('Unauthorized')
 
         const requestBody = await req.json()
-        const { session_id, message } = requestBody
+        const { session_id, message, web_search = false } = requestBody
 
         if (!session_id || !message) throw new Error('Missing session_id or message')
 
@@ -124,7 +124,13 @@ serve(async (req) => {
             snippet: c.content.substring(0, 100) + '...'
         }))
 
-        const systemPrompt = `You are a helpful AI Knowledge Copilot. Answer the user's question using ONLY the provided context. If the answer is not contained in the context, explicitly say so.
+        // When web_search is on, allow general knowledge as a fallback but keep it clearly separated
+        // from cited internal context. (A live web API can be wired here later.)
+        const sourcingRule = web_search
+            ? `Answer primarily from the provided context and cite it. If the context is insufficient, you may add general knowledge, but clearly label it as not sourced from internal documents.`
+            : `Answer the user's question using ONLY the provided context. If the answer is not contained in the context, explicitly say so.`
+
+        const systemPrompt = `You are Atlas Copilot, a helpful enterprise knowledge assistant. ${sourcingRule}
 ======
 CONTEXT:
 ${contextText}

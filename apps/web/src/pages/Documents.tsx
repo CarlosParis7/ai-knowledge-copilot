@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
-import { FileUp, FileText, Loader2, CheckCircle2, AlertCircle, X, AlignLeft } from 'lucide-react';
+import { FileUp, FileText, Loader2, CheckCircle2, AlertCircle, X, AlignLeft, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from 'sonner';
+import * as demo from '@/lib/demoStore';
 
 export default function Documents() {
     const queryClient = useQueryClient();
@@ -14,14 +15,7 @@ export default function Documents() {
     const { data: documents, isLoading } = useQuery({
         queryKey: ['documents'],
         queryFn: async () => {
-            const isDemo = localStorage.getItem('demo-mode') === 'true';
-            if (isDemo) {
-                return [
-                    { id: '1', title: 'SOP Consolidación LCL (Almacén) - 2026', status: 'indexed', created_at: new Date().toISOString() },
-                    { id: '2', title: 'Guía Aduanas - Documentación por país (Resumen interno)', status: 'indexed', created_at: new Date(Date.now() - 86400000).toISOString() },
-                    { id: '3', title: 'IATA DGR (Mercancías peligrosas) - Checklist operativo', status: 'processing', created_at: new Date(Date.now() - 172800000).toISOString() },
-                ];
-            }
+            if (demo.isDemo()) return demo.listDocs();
             const { data } = await supabase
                 .from('documents')
                 .select('*')
@@ -34,14 +28,7 @@ export default function Documents() {
         queryKey: ['document_chunks', selectedDocId],
         queryFn: async () => {
             if (!selectedDocId) return [];
-            const isDemo = localStorage.getItem('demo-mode') === 'true';
-            if (isDemo) {
-                return [
-                    { id: 'c1', chunk_index: 0, content: 'LCL: Verificar peso/volumen, cubicaje y condiciones de empaque. Confirmar cut-off de consolidación y documentación mínima: factura, packing list, instrucciones de embarque.' },
-                    { id: 'c2', chunk_index: 1, content: 'Aduanas: validar HS (si aplica), país de origen/destino, restricciones, y requisitos de permisos. No proceder si falta documentación o hay sanciones.' },
-                    { id: 'c3', chunk_index: 2, content: 'DG (IATA/IMDG): confirmar clase, UN number, MSDS, empaque homologado y etiquetado. Exigir aprobación antes de aceptación en almacén.' },
-                ];
-            }
+            if (demo.isDemo()) return demo.getChunks(selectedDocId);
             const { data } = await supabase
                 .from('document_chunks')
                 .select('id, chunk_index, content')
@@ -58,10 +45,18 @@ export default function Documents() {
 
         setUploading(true);
         try {
-            const isDemo = localStorage.getItem('demo-mode') === 'true';
-            if (isDemo) {
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                toast.success("Demo Mode: Document uploaded and indexed successfully");
+            if (demo.isDemo()) {
+                const title = file.name.replace(/\.[^/.]+$/, '');
+                const doc = demo.addDoc(title);
+                queryClient.invalidateQueries({ queryKey: ['documents'] });
+                toast.success(`"${file.name}" subido. Indexando…`);
+                // Simulate the indexing pipeline finishing.
+                setTimeout(() => {
+                    demo.markIndexed(doc.id);
+                    queryClient.invalidateQueries({ queryKey: ['documents'] });
+                    queryClient.invalidateQueries({ queryKey: ['dashboard_stats'] });
+                    toast.success(`"${title}" indexado y listo para consultar`);
+                }, 1800);
                 return;
             }
 
@@ -111,15 +106,40 @@ export default function Documents() {
         }
     };
 
+    const handleDeleteDoc = (id: string, title: string) => {
+        if (!window.confirm(`¿Eliminar "${title}"? No se puede deshacer.`)) return;
+        if (demo.isDemo()) {
+            demo.removeDoc(id);
+            if (selectedDocId === id) setSelectedDocId(null);
+            queryClient.invalidateQueries({ queryKey: ['documents'] });
+            queryClient.invalidateQueries({ queryKey: ['dashboard_stats'] });
+            toast.success('Documento eliminado');
+            return;
+        }
+        supabase.from('documents').delete().eq('id', id).then(({ error }) => {
+            if (error) { toast.error(error.message); return; }
+            if (selectedDocId === id) setSelectedDocId(null);
+            queryClient.invalidateQueries({ queryKey: ['documents'] });
+            toast.success('Documento eliminado');
+        });
+    };
+
+    const statusStyles: Record<string, string> = {
+        indexed: 'bg-success-soft text-success',
+        processing: 'bg-brand-soft text-brand',
+        error: 'bg-danger-soft text-danger',
+        uploaded: 'bg-warning-soft text-warning',
+    };
+
     return (
-        <div className="flex-1 w-full flex flex-col items-center bg-[#09090B] px-8 py-12 overflow-y-auto">
-            <div className="w-full max-w-5xl space-y-12">
-                
+        <div className="flex-1 w-full overflow-y-auto">
+            <div className="mx-auto w-full max-w-5xl px-6 md:px-10 py-10 md:py-12">
+
                 {/* Header Page */}
-                <div className="flex items-end justify-between">
+                <div className="flex flex-wrap items-end justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white font-headline">Knowledge Base</h1>
-                        <p className="text-[#A1A1AA] mt-2 text-[15px]">Upload and manage documents that Atlas uses to generate answers.</p>
+                        <h1 className="text-[26px] font-semibold tracking-tight text-ink">Base de conocimiento</h1>
+                        <p className="text-ink-2 mt-1.5 text-[15px]">Sube y gestiona los documentos que Atlas cita en sus respuestas.</p>
                     </div>
 
                     <div>
@@ -131,75 +151,79 @@ export default function Documents() {
                             onChange={handleFileUpload}
                             disabled={uploading}
                         />
-                        <Button asChild disabled={uploading} className="bg-white text-black hover:bg-[#EBEBEB] font-semibold rounded-lg shadow-sm h-11 px-5">
-                            <label htmlFor="file-upload" className="cursor-pointer flex items-center">
-                                {uploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin text-black" /> : <FileUp className="mr-2 h-4 w-4 text-black" />}
-                                <span className="text-black">Subir documento</span>
+                        <Button asChild disabled={uploading}>
+                            <label htmlFor="file-upload" className="cursor-pointer">
+                                {uploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <FileUp className="h-4 w-4" />}
+                                Subir documento
                             </label>
                         </Button>
                     </div>
                 </div>
 
-                <hr className="border-[#ffffff]/5" />
-
                 {/* Documents Table */}
-                <div className="border border-[#ffffff]/10 rounded-[16px] bg-[#18181B] shadow-sm overflow-hidden relative">
+                <div className="mt-8 border border-line rounded-xl bg-surface shadow-card overflow-hidden">
                     {isLoading ? (
-                        <div className="divide-y divide-[#ffffff]/5">
-                            <div className="bg-[#09090B]/50 h-12 w-full"></div>
+                        <div className="divide-y divide-line">
+                            <div className="bg-surface-2 h-11 w-full" />
                             {[1, 2, 3, 4, 5].map(i => (
-                                <div key={i} className="flex px-6 py-4 items-center">
-                                    <div className="h-4 w-48 bg-[#ffffff]/5 animate-pulse rounded mr-auto"></div>
-                                    <div className="h-4 w-24 bg-[#ffffff]/5 animate-pulse rounded mx-8"></div>
-                                    <div className="h-8 w-16 bg-[#ffffff]/5 animate-pulse rounded"></div>
+                                <div key={i} className="flex px-5 py-3.5 items-center gap-4">
+                                    <div className="h-4 w-48 shimmer-bg rounded mr-auto" />
+                                    <div className="h-4 w-24 shimmer-bg rounded" />
+                                    <div className="h-4 w-16 shimmer-bg rounded" />
                                 </div>
                             ))}
                         </div>
                     ) : documents?.length === 0 ? (
                         <div className="p-16 text-center flex flex-col items-center">
-                            <div className="h-16 w-16 rounded-2xl bg-[#ffffff]/5 flex items-center justify-center mb-4">
-                                <FileText className="h-8 w-8 text-[#A1A1AA]" />
+                            <div className="h-14 w-14 rounded-2xl bg-surface-3 flex items-center justify-center mb-4">
+                                <FileText className="h-7 w-7 text-ink-3" />
                             </div>
-                            <h3 className="text-lg font-semibold text-white tracking-tight">No documents indexed</h3>
-                            <p className="mt-1 text-sm text-[#A1A1AA]">Upload a document to train your Workspace Copilot.</p>
+                            <h3 className="text-[15px] font-semibold text-ink tracking-tight">Aún no hay documentos</h3>
+                            <p className="mt-1 text-sm text-ink-2 max-w-xs">Sube un archivo PDF, DOCX, TXT o MD y Atlas lo indexará para poder citarlo.</p>
                         </div>
                     ) : (
-                        <table className="min-w-full divide-y divide-[#ffffff]/5">
-                            <thead className="bg-[#09090B]/50">
+                        <table className="min-w-full">
+                            <thead className="bg-surface-2 border-b border-line">
                                 <tr>
-                                    <th scope="col" className="py-4 pl-6 pr-3 text-left text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">Filename</th>
-                                    <th scope="col" className="px-3 py-4 text-left text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">Status</th>
-                                    <th scope="col" className="px-3 py-4 text-left text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">Date Added</th>
-                                    <th scope="col" className="relative py-4 pl-3 pr-6">
-                                        <span className="sr-only">Actions</span>
-                                    </th>
+                                    <th scope="col" className="py-3 pl-5 pr-3 text-left text-[12px] font-semibold text-ink-2">Archivo</th>
+                                    <th scope="col" className="px-3 py-3 text-left text-[12px] font-semibold text-ink-2">Estado</th>
+                                    <th scope="col" className="px-3 py-3 text-left text-[12px] font-semibold text-ink-2">Fecha</th>
+                                    <th scope="col" className="relative py-3 pl-3 pr-5"><span className="sr-only">Actions</span></th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-[#ffffff]/5 bg-[#18181B]">
+                            <tbody className="divide-y divide-line">
                                 {documents?.map((doc) => (
-                                    <tr key={doc.id} className="hover:bg-[#27272A]/50 transition-colors">
-                                        <td className="whitespace-nowrap py-4 pl-6 pr-3 text-sm font-medium text-white">
-                                            <div className="flex items-center">
-                                                <FileText className="h-4 w-4 mr-3 text-primary opacity-80" />
-                                                {doc.title}
+                                    <tr key={doc.id} className="hover:bg-surface-2 transition-colors">
+                                        <td className="py-3.5 pl-5 pr-3 text-sm font-medium text-ink">
+                                            <div className="flex items-center gap-2.5">
+                                                <FileText className="h-4 w-4 text-ink-3 shrink-0" />
+                                                <span className="truncate max-w-md">{doc.title}</span>
                                             </div>
                                         </td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm">
-                                            <div className="flex items-center font-medium">
-                                                {doc.status === 'indexed' && <CheckCircle2 className="h-4 w-4 text-emerald-500 mr-2" />}
-                                                {doc.status === 'processing' && <Loader2 className="h-4 w-4 text-blue-400 animate-spin mr-2" />}
-                                                {doc.status === 'error' && <AlertCircle className="h-4 w-4 text-red-500 mr-2" />}
-                                                {doc.status === 'uploaded' && <div className="h-2 w-2 rounded-full bg-yellow-500 mx-1 mr-3" />}
-                                                <span className="capitalize text-[#EBEBEB]">{doc.status}</span>
-                                            </div>
+                                        <td className="whitespace-nowrap px-3 py-3.5 text-sm">
+                                            <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[12px] font-medium capitalize ${statusStyles[doc.status] ?? 'bg-surface-3 text-ink-2'}`}>
+                                                {doc.status === 'indexed' && <CheckCircle2 className="h-3.5 w-3.5" />}
+                                                {doc.status === 'processing' && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                                {doc.status === 'error' && <AlertCircle className="h-3.5 w-3.5" />}
+                                                {doc.status}
+                                            </span>
                                         </td>
-                                        <td className="whitespace-nowrap px-3 py-4 text-sm font-medium text-[#A1A1AA]">
+                                        <td className="whitespace-nowrap px-3 py-3.5 text-sm text-ink-2">
                                             {format(new Date(doc.created_at), 'MMM d, yyyy')}
                                         </td>
-                                        <td className="relative whitespace-nowrap py-4 pl-3 pr-6 text-right text-sm font-medium">
-                                            <Button variant="ghost" size="sm" onClick={() => setSelectedDocId(doc.id)} className="text-primary hover:text-white hover:bg-[#ffffff]/10">
-                                                View Chunks
-                                            </Button>
+                                        <td className="relative whitespace-nowrap py-3.5 pl-3 pr-5 text-right">
+                                            <div className="flex items-center justify-end gap-1">
+                                                <Button variant="ghost" size="sm" onClick={() => setSelectedDocId(doc.id)} className="text-brand hover:text-brand-hover">
+                                                    Ver fragmentos
+                                                </Button>
+                                                <button
+                                                    onClick={() => handleDeleteDoc(doc.id, doc.title)}
+                                                    aria-label={`Eliminar ${doc.title}`}
+                                                    className="flex h-8 w-8 items-center justify-center rounded-lg text-ink-3 hover:text-danger hover:bg-danger-soft transition-colors"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
@@ -211,34 +235,37 @@ export default function Documents() {
 
             {/* Chunk Viewer Slide-over */}
             {selectedDocId && (
-                <div className="fixed inset-0 z-[60] overflow-hidden bg-black/60 backdrop-blur-sm flex justify-end transition-all">
-                    <div className="w-full max-w-md bg-[#18181B] border-l border-[#ffffff]/10 h-full flex flex-col shadow-2xl animate-in slide-in-from-right duration-300">
-                        <div className="p-5 border-b border-[#ffffff]/10 flex items-center justify-between bg-[#09090B]">
-                            <h3 className="font-semibold text-white flex items-center">
-                                <AlignLeft className="h-4 w-4 mr-2 text-primary" />
-                                Vector Chunks
+                <div className="fixed inset-0 z-50 overflow-hidden bg-ink/20 flex justify-end" onClick={() => setSelectedDocId(null)}>
+                    <div
+                        className="w-full max-w-md bg-surface border-l border-line h-full flex flex-col shadow-float animate-in slide-in-from-right duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className="px-5 h-14 border-b border-line flex items-center justify-between bg-surface-2 shrink-0">
+                            <h3 className="font-semibold text-[15px] text-ink flex items-center gap-2">
+                                <AlignLeft className="h-4 w-4 text-ink-3" />
+                                Fragmentos vectoriales
                             </h3>
-                            <Button variant="ghost" size="icon" onClick={() => setSelectedDocId(null)} className="h-8 w-8 rounded-full text-[#A1A1AA] hover:text-white hover:bg-[#ffffff]/10">
+                            <Button variant="ghost" size="icon" onClick={() => setSelectedDocId(null)} className="h-8 w-8 rounded-lg">
                                 <X className="h-4 w-4" />
                             </Button>
                         </div>
-                        <div className="flex-1 overflow-y-auto p-5 space-y-4">
+                        <div className="flex-1 overflow-y-auto p-4 space-y-3">
                             {loadingChunks ? (
-                                <div className="space-y-4">
+                                <div className="space-y-3">
                                     {[1, 2, 3].map(i => (
-                                        <div key={i} className="h-24 bg-[#ffffff]/5 animate-pulse rounded-xl border border-[#ffffff]/10"></div>
+                                        <div key={i} className="h-24 shimmer-bg rounded-lg border border-line" />
                                     ))}
                                 </div>
                             ) : chunks?.length === 0 ? (
-                                <div className="text-center text-[#A1A1AA] p-8">No chunks found. Is the document indexed?</div>
+                                <div className="text-center text-ink-2 text-sm p-8">No se encontraron fragmentos. ¿El documento está indexado?</div>
                             ) : (
                                 chunks?.map(chunk => (
-                                    <div key={chunk.id} className="bg-[#27272A]/50 border border-[#ffffff]/5 rounded-xl p-4 text-sm shadow-sm transition-all hover:bg-[#27272A] hover:border-[#ffffff]/10">
-                                        <div className="text-xs text-[#A1A1AA] mb-2 flex items-center justify-between font-medium">
+                                    <div key={chunk.id} className="bg-surface-2 border border-line rounded-lg p-3.5 text-sm">
+                                        <div className="text-xs text-ink-2 mb-2 flex items-center justify-between font-medium">
                                             <span>Chunk #{chunk.chunk_index + 1}</span>
-                                            <span className="font-mono bg-[#ffffff]/5 px-2 py-0.5 rounded text-[10px]">{chunk.id.substring(0, 8)}</span>
+                                            <span className="font-mono bg-surface-3 px-1.5 py-0.5 rounded text-[10px] text-ink-3">{chunk.id.substring(0, 8)}</span>
                                         </div>
-                                        <p className="text-[#EBEBEB] leading-relaxed whitespace-pre-wrap">{chunk.content}</p>
+                                        <p className="text-ink leading-relaxed whitespace-pre-wrap">{chunk.content}</p>
                                     </div>
                                 ))
                             )}

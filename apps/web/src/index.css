@@ -2,106 +2,164 @@
 @import "tailwindcss";
 @config "../tailwind.config.js";
 
+/*
+ * Atlas Copilot — Light design system
+ * Strategy: Restrained. Cool near-white canvas, pure-white surfaces,
+ * near-black ink, one deep indigo-blue accent for action & state.
+ * All colors authored in OKLCH; legacy shadcn HSL tokens kept in sync
+ * so older `bg-primary` / `text-foreground` utilities still resolve.
+ */
+
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 224 71.4% 4.1%;
+    /* ---- Canvas & surfaces (cool neutrals, faint indigo tint) ---- */
+    --canvas: oklch(0.985 0.002 265);     /* app background */
+    --surface: oklch(1 0 0);              /* cards, panels, content */
+    --surface-2: oklch(0.972 0.003 265);  /* sidebars, toolbars, subtle fills */
+    --surface-3: oklch(0.955 0.004 265);  /* hover fills, inset wells */
+
+    /* ---- Ink (text) ---- */
+    --ink: oklch(0.21 0.012 265);         /* primary text */
+    --ink-2: oklch(0.44 0.012 265);       /* secondary text — AA on surface */
+    --ink-3: oklch(0.55 0.012 265);       /* tertiary / muted, large text only */
+    --ink-on-accent: oklch(0.99 0.005 265);
+
+    /* ---- Accent (emerald green) ---- */
+    --accent: oklch(0.62 0.15 162);
+    --accent-hover: oklch(0.57 0.15 162);
+    --accent-press: oklch(0.52 0.14 162);
+    --accent-soft: oklch(0.955 0.03 162);    /* tinted fill behind accent */
+    --accent-ring: oklch(0.62 0.15 162 / 0.4);
+
+    /* ---- Lines ---- */
+    --line: oklch(0.92 0.004 265);        /* default borders/dividers */
+    --line-strong: oklch(0.86 0.005 265); /* input borders, emphasis */
+
+    /* ---- Semantic state ---- */
+    --success: oklch(0.55 0.13 155);
+    --success-soft: oklch(0.96 0.03 155);
+    --warning: oklch(0.66 0.14 75);
+    --warning-soft: oklch(0.96 0.05 85);
+    --danger: oklch(0.55 0.2 25);
+    --danger-soft: oklch(0.96 0.03 25);
+    --info: var(--accent);
+
+    --radius: 0.625rem;
+
+    /* ---- Elevation (soft, single-source, low-spread) ---- */
+    --shadow-xs: 0 1px 2px oklch(0.21 0.012 265 / 0.05);
+    --shadow-sm: 0 1px 3px oklch(0.21 0.012 265 / 0.07), 0 1px 2px oklch(0.21 0.012 265 / 0.04);
+    --shadow-md: 0 4px 12px oklch(0.21 0.012 265 / 0.08), 0 2px 4px oklch(0.21 0.012 265 / 0.04);
+    --shadow-lg: 0 12px 32px oklch(0.21 0.012 265 / 0.12), 0 4px 8px oklch(0.21 0.012 265 / 0.05);
+
+    /* ---- shadcn-compat HSL bridge (kept for legacy `*-primary` etc.) ---- */
+    --background: 252 33% 99%;
+    --foreground: 265 18% 14%;
     --card: 0 0% 100%;
-    --card-foreground: 224 71.4% 4.1%;
+    --card-foreground: 265 18% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 224 71.4% 4.1%;
-    --primary: 262.1 83.3% 57.8%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 220 14.3% 95.9%;
-    --secondary-foreground: 220.9 39.3% 11%;
-    --muted: 220 14.3% 95.9%;
-    --muted-foreground: 220 8.9% 46.1%;
-    --accent: 220 14.3% 95.9%;
-    --accent-foreground: 220.9 39.3% 11%;
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 262.1 83.3% 57.8%;
-    --radius: 0.75rem;
+    --popover-foreground: 265 18% 14%;
+    --primary: 158 64% 38%;
+    --primary-foreground: 158 30% 99%;
+    --secondary: 265 10% 96%;
+    --secondary-foreground: 265 18% 22%;
+    --muted: 265 10% 96%;
+    --muted-foreground: 265 8% 44%;
+    --accent-compat: 265 10% 96%;
+    --accent-foreground: 265 18% 22%;
+    --destructive: 10 75% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 265 12% 91%;
+    --input: 265 12% 88%;
+    --ring: 158 64% 44%;
   }
 
-  .dark {
-    --background: 224 71.4% 4.1%;
-    --foreground: 210 20% 98%;
-    --card: 222 47% 7%;
-    --card-foreground: 210 20% 98%;
-    --popover: 224 71.4% 4.1%;
-    --popover-foreground: 210 20% 98%;
-    --primary: 263.4 70% 50.4%;
-    --primary-foreground: 210 20% 98%;
-    --secondary: 215 27.9% 16.9%;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 215 27.9% 16.9%;
-    --muted-foreground: 217.9 10.6% 64.9%;
-    --accent: 215 27.9% 16.9%;
-    --accent-foreground: 210 20% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 20% 98%;
-    --border: 215 27.9% 16.9%;
-    --input: 215 27.9% 16.9%;
-    --ring: 263.4 70% 50.4%;
-  }
-
-  /* Force dark mode for a premium feel by default */
+  /* Light is the product. */
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
-}
 
-@layer base {
   * {
-    border-color: hsl(var(--border));
+    border-color: var(--line);
   }
 
   body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+    background-color: var(--canvas);
+    color: var(--ink);
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
-    background-color: hsl(var(--primary) / 0.3);
-    color: hsl(var(--primary-foreground));
+    background-color: var(--accent-soft);
+    color: var(--accent-press);
+  }
+
+  /* Visible, consistent focus ring across the app */
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+    border-radius: var(--radius);
   }
 }
 
 @layer utilities {
+  /* Semantic surface helpers */
+  .bg-canvas { background-color: var(--canvas); }
+  .bg-surface { background-color: var(--surface); }
+  .bg-surface-2 { background-color: var(--surface-2); }
+  .bg-surface-3 { background-color: var(--surface-3); }
+  .text-ink { color: var(--ink); }
+  .text-ink-2 { color: var(--ink-2); }
+  .text-ink-3 { color: var(--ink-3); }
+  .border-line { border-color: var(--line); }
+  .border-line-strong { border-color: var(--line-strong); }
+
+  .accent-text { color: var(--accent); }
+  .bg-accent-solid { background-color: var(--accent); color: var(--ink-on-accent); }
+  .bg-accent-soft { background-color: var(--accent-soft); }
+
+  .shadow-card { box-shadow: var(--shadow-sm); }
+  .shadow-pop { box-shadow: var(--shadow-md); }
+  .shadow-float { box-shadow: var(--shadow-lg); }
+
+  /* Loading skeleton — subtle sheen on a neutral well */
   .shimmer-bg {
     background: linear-gradient(90deg,
-        hsl(var(--muted)) 0%,
-        hsl(var(--secondary)) 50%,
-        hsl(var(--muted)) 100%);
+        var(--surface-2) 0%,
+        var(--surface-3) 50%,
+        var(--surface-2) 100%);
     background-size: 200% 100%;
-    animation: shimmer 2s infinite;
-  }
-
-  .glass-card {
-    background-color: hsl(var(--card) / 0.8);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsl(var(--border) / 0.5);
-    box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+    animation: shimmer 1.6s ease-in-out infinite;
   }
 
   .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
     vertical-align: middle;
   }
+}
 
-  .glass-panel {
-    background: rgba(42, 42, 43, 0.7);
-    backdrop-filter: blur(20px);
-  }
+@keyframes shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
 
-  .primary-gradient {
-    background: linear-gradient(135deg, #0a6bee 0%, #b0c6ff 100%);
+/* Typing indicator: smooth opacity pulse, no bounce */
+@keyframes typing-dot {
+  0%, 60%, 100% { opacity: 0.25; transform: translateY(0); }
+  30% { opacity: 0.9; transform: translateY(-2px); }
+}
+.animate-typing-dot {
+  animation: typing-dot 1.2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

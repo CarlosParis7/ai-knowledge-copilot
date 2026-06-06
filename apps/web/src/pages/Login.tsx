@@ -66,67 +66,59 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-[#09090B] flex items-center justify-center p-6 relative overflow-hidden">
-            
-            {/* Ambient Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[400px] bg-primary/20 blur-[120px] rounded-full pointer-events-none"></div>
+        <div className="min-h-[100dvh] flex items-center justify-center p-6">
+            <div className="w-full max-w-[400px] flex flex-col items-center">
 
-            <div className="w-full max-w-md relative z-10 flex flex-col items-center">
-                
                 {/* Brand Logo & Headline */}
-                <div className="flex flex-col items-center mb-10 space-y-4">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#ffffff]/10 to-[#ffffff]/5 border border-[#ffffff]/10 shadow-[0_0_40px_rgba(255,255,255,0.05)] flex items-center justify-center">
-                        <Box className="w-7 h-7 text-white" />
+                <div className="flex flex-col items-center mb-8 gap-4">
+                    <div className="w-12 h-12 rounded-xl bg-brand text-ink-on-accent shadow-pop flex items-center justify-center">
+                        <Box className="w-6 h-6" />
                     </div>
                     <div className="text-center">
-                        <h1 className="text-3xl font-extrabold tracking-tight text-white font-headline">{t('login.title')}</h1>
-                        <p className="mt-2 text-[15px] text-[#A1A1AA]">{t('login.subtitle')}</p>
+                        <h1 className="text-2xl font-semibold tracking-tight text-ink">{t('login.title')}</h1>
+                        <p className="mt-1.5 text-[15px] text-ink-2">{t('login.subtitle')}</p>
                     </div>
                 </div>
 
                 {/* Login Card */}
-                <div className="w-full bg-[#18181B]/80 backdrop-blur-xl border border-[#ffffff]/10 rounded-2xl p-8 shadow-2xl">
-                    <form className="space-y-5" onSubmit={handleLogin}>
-                        <div className="space-y-2">
-                            <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">{t('login.email')}</label>
+                <div className="w-full bg-surface border border-line rounded-xl p-7 shadow-card">
+                    <form className="space-y-4" onSubmit={handleLogin}>
+                        <div className="space-y-1.5">
+                            <label htmlFor="email" className="text-[13px] font-medium text-ink-2">{t('login.email')}</label>
                             <Input
+                                id="email"
                                 type="email"
                                 required
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="name@company.com"
-                                className="h-11 bg-[#09090B] border-[#ffffff]/10 text-white placeholder:text-[#52525B] focus-visible:ring-primary/50 focus-visible:border-primary/50"
                             />
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-1.5">
                             <div className="flex items-center justify-between">
-                                <label className="text-[13px] font-bold uppercase tracking-widest text-[#A1A1AA]">{t('login.password')}</label>
-                                <a href="#" className="text-xs font-semibold text-primary hover:text-white transition-colors">{t('login.forgot')}</a>
+                                <label htmlFor="password" className="text-[13px] font-medium text-ink-2">{t('login.password')}</label>
+                                <a href="#" className="text-[13px] font-medium text-brand hover:text-brand-hover transition-colors">{t('login.forgot')}</a>
                             </div>
                             <Input
+                                id="password"
                                 type="password"
                                 required
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="h-11 bg-[#09090B] border-[#ffffff]/10 text-white placeholder:text-[#52525B] focus-visible:ring-primary/50 focus-visible:border-primary/50"
                             />
                         </div>
 
-                        <Button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full h-11 mt-2 text-primary-foreground font-semibold bg-primary hover:bg-primary/90 rounded-xl transition-all shadow-lg shadow-primary/20"
-                        >
+                        <Button type="submit" disabled={loading} size="lg" className="w-full mt-1">
                             {loading ? t('login.button_loading') : t('login.button')}
                         </Button>
                     </form>
 
-                    <div className="mt-8 flex items-center gap-4">
-                        <div className="flex-1 h-px bg-[#ffffff]/10"></div>
-                        <span className="text-xs font-semibold uppercase tracking-widest text-[#52525B]">{t('login.guest_access')}</span>
-                        <div className="flex-1 h-px bg-[#ffffff]/10"></div>
+                    <div className="mt-6 flex items-center gap-3">
+                        <div className="flex-1 h-px bg-line"></div>
+                        <span className="text-[12px] font-medium text-ink-3">{t('login.guest_access')}</span>
+                        <div className="flex-1 h-px bg-line"></div>
                     </div>
 
                     <button
@@ -136,19 +128,18 @@ export default function Login() {
                             toast.success("Sandbox environment activated");
                             navigate('/dashboard');
                         }}
-                        className="w-full h-11 mt-6 flex items-center justify-center gap-2 text-[14px] font-semibold text-white bg-[#ffffff]/5 hover:bg-[#ffffff]/10 border border-[#ffffff]/10 rounded-xl transition-all group"
+                        className="w-full h-11 mt-4 flex items-center justify-center gap-2 text-[14px] font-medium text-ink bg-surface hover:bg-surface-2 border border-line-strong rounded-lg transition-colors group"
                     >
                         {t('login.demo')}
-                        <ArrowRight className="w-4 h-4 text-[#A1A1AA] group-hover:text-white transition-colors group-hover:translate-x-1" />
+                        <ArrowRight className="w-4 h-4 text-ink-3 group-hover:text-ink-2 transition-transform group-hover:translate-x-0.5" />
                     </button>
                 </div>
-                
+
                 {/* Footer terms */}
-                <p className="mt-8 text-xs text-[#52525B] text-center max-w-[280px]">
+                <p className="mt-7 text-[12px] leading-relaxed text-ink-3 text-center max-w-[300px]">
                     {t('login.terms')}
                 </p>
             </div>
-            
         </div>
     );
 }

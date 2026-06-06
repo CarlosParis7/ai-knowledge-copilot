@@ -42,13 +42,13 @@ export function CommandPalette() {
     };
 
     const commands: CommandItem[] = [
-        { id: '1', title: t('cmd.nav_dashboard'), icon: <Monitor className="w-4 h-4 text-primary" />, category: 'Navigation', action: () => { navigate('/dashboard'); setOpen(false); } },
-        { id: '2', title: t('cmd.nav_chat'), icon: <MessageSquare className="w-4 h-4 text-emerald-400" />, category: 'Navigation', action: () => { navigate('/chat'); setOpen(false); } },
-        { id: '3', title: t('cmd.nav_documents'), icon: <Library className="w-4 h-4 text-blue-400" />, category: 'Navigation', action: () => { navigate('/documents'); setOpen(false); } },
-        { id: '4', title: t('cmd.nav_prompts'), icon: <Lightbulb className="w-4 h-4 text-amber-400" />, category: 'Navigation', action: () => { navigate('/prompts'); setOpen(false); } },
-        { id: '5', title: t('cmd.nav_settings'), icon: <SettingsIcon className="w-4 h-4 text-[#A1A1AA]" />, category: 'Navigation', action: () => { navigate('/settings'); setOpen(false); } },
-        { id: '6', title: t('cmd.toggle_demo'), icon: <Monitor className="w-4 h-4 text-[#A1A1AA]" />, category: 'Commands', action: () => { toast("Demo Mode Toggled"); setOpen(false); } },
-        { id: '7', title: t('cmd.logout'), icon: <LogOut className="w-4 h-4 text-red-400" />, category: 'Danger', action: handleLogout },
+        { id: '1', title: t('cmd.nav_dashboard'), icon: <Monitor className="w-[18px] h-[18px] text-ink-2" />, category: 'Navigation', action: () => { navigate('/dashboard'); setOpen(false); } },
+        { id: '2', title: t('cmd.nav_chat'), icon: <MessageSquare className="w-[18px] h-[18px] text-ink-2" />, category: 'Navigation', action: () => { navigate('/chat'); setOpen(false); } },
+        { id: '3', title: t('cmd.nav_documents'), icon: <Library className="w-[18px] h-[18px] text-ink-2" />, category: 'Navigation', action: () => { navigate('/documents'); setOpen(false); } },
+        { id: '4', title: t('cmd.nav_prompts'), icon: <Lightbulb className="w-[18px] h-[18px] text-ink-2" />, category: 'Navigation', action: () => { navigate('/prompts'); setOpen(false); } },
+        { id: '5', title: t('cmd.nav_settings'), icon: <SettingsIcon className="w-[18px] h-[18px] text-ink-2" />, category: 'Navigation', action: () => { navigate('/settings'); setOpen(false); } },
+        { id: '6', title: t('cmd.toggle_demo'), icon: <Monitor className="w-[18px] h-[18px] text-ink-2" />, category: 'Commands', action: () => { toast("Demo Mode Toggled"); setOpen(false); } },
+        { id: '7', title: t('cmd.logout'), icon: <LogOut className="w-[18px] h-[18px] text-danger" />, category: 'Danger', action: handleLogout },
     ];
 
     const filtered = commands.filter(cmd => cmd.title.toLowerCase().includes(search.toLowerCase()) || cmd.category.toLowerCase().includes(search.toLowerCase()));
@@ -84,21 +84,21 @@ export function CommandPalette() {
 
     return (
         <div className="fixed inset-0 z-[100] flex items-start justify-center pt-[15vh] px-4">
-            
+
             {/* Backdrop */}
-            <div 
-                className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity animate-in fade-in"
+            <div
+                className="fixed inset-0 bg-ink/30 transition-opacity animate-in fade-in"
                 onClick={() => setOpen(false)}
             ></div>
 
             {/* Modal */}
-            <div 
-                className="relative w-full max-w-lg bg-[#18181B] rounded-2xl shadow-2xl border border-[#ffffff]/10 overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-200"
+            <div
+                className="relative w-full max-w-lg bg-surface rounded-xl shadow-float border border-line overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150"
                 onClick={e => e.stopPropagation()}
             >
                 {/* Search Input */}
-                <div className="flex items-center px-4 py-3 border-b border-[#ffffff]/5">
-                    <Search className="w-5 h-5 text-[#A1A1AA]" />
+                <div className="flex items-center px-4 h-13 py-3 border-b border-line">
+                    <Search className="w-[18px] h-[18px] text-ink-3" />
                     <input
                         ref={inputRef}
                         type="text"
@@ -106,38 +106,34 @@ export function CommandPalette() {
                         onChange={e => setSearch(e.target.value)}
                         onKeyDown={handleKeyDown}
                         placeholder={t('cmd.search')}
-                        className="flex-1 bg-transparent border-none text-white text-[15px] outline-none px-4 placeholder:text-[#52525B]"
+                        className="flex-1 bg-transparent border-none text-ink text-[15px] outline-none px-3 placeholder:text-ink-3"
                     />
-                    <div className="flex items-center gap-1.5 shrink-0">
-                        <kbd className="px-2 py-1 bg-[#ffffff]/5 border border-[#ffffff]/10 rounded-md text-[10px] font-bold text-[#A1A1AA] uppercase font-mono">ESC</kbd>
-                    </div>
+                    <kbd className="px-1.5 py-0.5 bg-surface-2 border border-line rounded text-[10px] font-semibold text-ink-3 uppercase font-mono shrink-0">ESC</kbd>
                 </div>
 
                 {/* Results List */}
-                <div className="max-h-[300px] overflow-y-auto p-2">
+                <div className="max-h-[300px] overflow-y-auto p-1.5">
                     {filtered.length === 0 ? (
-                        <div className="py-10 text-center text-[#52525B] text-sm">
+                        <div className="py-10 text-center text-ink-3 text-sm">
                             {t('cmd.no_results')}
                         </div>
                     ) : (
-                        <div className="space-y-1">
+                        <div className="space-y-0.5">
                             {filtered.map((cmd, idx) => (
                                 <button
                                     key={cmd.id}
                                     onClick={cmd.action}
                                     onMouseEnter={() => setSelectedIndex(idx)}
-                                    className={`w-full flex items-center justify-between px-4 py-3 rounded-xl transition-colors ${
-                                        idx === selectedIndex ? 'bg-primary/10 text-white' : 'text-[#A1A1AA] hover:bg-[#ffffff]/5 hover:text-white'
+                                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${
+                                        idx === selectedIndex ? 'bg-brand-soft text-ink' : 'text-ink-2 hover:bg-surface-2'
                                     }`}
                                 >
                                     <div className="flex items-center gap-3">
-                                        <div className={`p-1 rounded-lg ${idx === selectedIndex ? 'bg-primary/20' : 'bg-transparent'}`}>
-                                            {cmd.icon}
-                                        </div>
-                                        <span className="text-sm font-medium">{cmd.title}</span>
+                                        {cmd.icon}
+                                        <span className="text-sm font-medium text-ink">{cmd.title}</span>
                                     </div>
                                     {idx === selectedIndex && (
-                                        <kbd className="px-1.5 py-0.5 bg-[#ffffff]/10 rounded text-[10px] font-bold text-white uppercase font-mono">↵</kbd>
+                                        <kbd className="px-1.5 py-0.5 bg-surface border border-line rounded text-[10px] font-semibold text-ink-2 font-mono">↵</kbd>
                                     )}
                                 </button>
                             ))}
@@ -146,12 +142,11 @@ export function CommandPalette() {
                 </div>
 
                 {/* Footer */}
-                <div className="bg-[#09090B]/50 px-4 py-2 border-t border-[#ffffff]/5 flex items-center gap-4 text-[11px] font-medium text-[#52525B]">
-                    <span className="flex items-center gap-1"><kbd className="bg-[#ffffff]/5 px-1 rounded">↑</kbd> <kbd className="bg-[#ffffff]/5 px-1 rounded">↓</kbd> {t('cmd.to_navigate')}</span>
-                    <span className="flex items-center gap-1"><kbd className="bg-[#ffffff]/5 px-1 rounded">↵</kbd> {t('cmd.to_select')}</span>
+                <div className="bg-surface-2 px-4 py-2 border-t border-line flex items-center gap-4 text-[11px] font-medium text-ink-3">
+                    <span className="flex items-center gap-1"><kbd className="bg-surface border border-line px-1 rounded">↑</kbd> <kbd className="bg-surface border border-line px-1 rounded">↓</kbd> {t('cmd.to_navigate')}</span>
+                    <span className="flex items-center gap-1"><kbd className="bg-surface border border-line px-1 rounded">↵</kbd> {t('cmd.to_select')}</span>
                 </div>
             </div>
-
         </div>
     );
 }

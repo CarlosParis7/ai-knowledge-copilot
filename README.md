@@ -1,4 +1,4 @@
-# AI Knowledge Copilot
+# Atlas Copilot
 
 A portfolio-grade Enterprise Retrieval-Augmented Generation (RAG) platform that empowers users to securely index company documents and chat intelligently with a context-aware AI assistant.
 
