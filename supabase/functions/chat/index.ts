@@ -148,7 +148,7 @@ ${contextText}
              return new Response(JSON.stringify(assistantMsg), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
         }
 
-        const modelUsed = 'claude-3-haiku-20240307';
+        const modelUsed = 'claude-haiku-4-5-20251001';
         const claudeRes = await fetch('https://api.anthropic.com/v1/messages', {
             method: 'POST',
             headers: {

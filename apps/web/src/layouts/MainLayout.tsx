@@ -152,7 +152,7 @@ export default function MainLayout() {
             </header>
 
             {/* ===== Mobile bottom nav ===== */}
-            <nav className="md:hidden fixed bottom-0 left-0 z-40 flex h-16 w-full items-stretch justify-around border-t border-line bg-surface-2/95 backdrop-blur px-1">
+            <nav className="md:hidden fixed bottom-0 left-0 z-40 flex h-16 w-full items-stretch justify-around border-t border-line bg-surface-2/95 backdrop-blur safe-area-bottom">
                 {[...navigation, { name: t('nav.settings'), href: '/settings', icon: 'settings' }].map((item) => {
                     const isActive = location.pathname.startsWith(item.href);
                     return (
@@ -160,15 +160,15 @@ export default function MainLayout() {
                             key={item.href}
                             to={item.href}
                             aria-current={isActive ? 'page' : undefined}
-                            className="flex flex-1 flex-col items-center justify-center gap-0.5"
+                            className="flex flex-1 flex-col items-center justify-center gap-0.5 min-w-0 px-1"
                         >
                             <span
-                                className={cn('material-symbols-outlined text-[23px]', isActive ? 'text-brand' : 'text-ink-3')}
-                                style={isActive ? { fontVariationSettings: "'FILL' 1" } : undefined}
+                                className={cn('material-symbols-outlined text-[22px] leading-none', isActive ? 'text-brand' : 'text-ink-3')}
+                                style={isActive ? { fontVariationSettings: "'FILL' 1, 'wght' 500" } : undefined}
                             >
                                 {item.icon}
                             </span>
-                            <span className={cn('text-[10px] font-medium', isActive ? 'text-brand' : 'text-ink-3')}>{item.name}</span>
+                            <span className={cn('text-[9px] font-medium truncate max-w-full', isActive ? 'text-brand' : 'text-ink-3')}>{item.name}</span>
                         </Link>
                     );
                 })}

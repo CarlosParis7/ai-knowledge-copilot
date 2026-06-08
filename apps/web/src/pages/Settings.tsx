@@ -10,6 +10,8 @@ export default function Settings() {
     const [companyId, setCompanyId] = useState('f47ac10b...');
     const [savingCompany, setSavingCompany] = useState(false);
     const [savingPrefs, setSavingPrefs] = useState(false);
+    const [selectedModel, setSelectedModel] = useState(() => localStorage.getItem('atlas-model') ?? 'claude-haiku');
+    const [topK, setTopK] = useState(() => Number(localStorage.getItem('atlas-topk') ?? '5'));
 
     useEffect(() => {
         const isDemo = localStorage.getItem('demo-mode') === 'true';
@@ -61,10 +63,12 @@ export default function Settings() {
 
     const handleSavePreferences = async () => {
         setSavingPrefs(true);
+        localStorage.setItem('atlas-model', selectedModel);
+        localStorage.setItem('atlas-topk', String(topK));
         setTimeout(() => {
             setSavingPrefs(false);
-            toast.success("AI Preferences saved");
-        }, 800);
+            toast.success("Preferencias guardadas");
+        }, 400);
     };
 
     return (
@@ -134,7 +138,12 @@ export default function Settings() {
                             <div className="p-5 space-y-5">
                                 <div className="space-y-1.5">
                                     <label htmlFor="model" className="text-[13px] font-medium text-ink-2">Modelo de chat predeterminado</label>
-                                    <select id="model" className="max-w-md w-full bg-surface border border-line-strong text-ink rounded-lg px-3 h-10 text-sm shadow-xs focus:outline-none focus:border-brand focus:ring-2 focus:ring-[var(--accent-ring)] transition-all">
+                                    <select
+                                        id="model"
+                                        value={selectedModel}
+                                        onChange={e => setSelectedModel(e.target.value)}
+                                        className="max-w-md w-full bg-surface border border-line-strong text-ink rounded-lg px-3 h-10 text-sm shadow-xs focus:outline-none focus:border-brand focus:ring-2 focus:ring-[var(--accent-ring)] transition-all"
+                                    >
                                         <option value="claude-haiku">Claude Haiku 4.5 (rápido y eficiente)</option>
                                         <option value="claude-sonnet">Claude Sonnet 4.6 (equilibrado)</option>
                                         <option value="claude-opus">Claude Opus 4.8 (más capaz)</option>
@@ -144,7 +153,15 @@ export default function Settings() {
                                 <div className="space-y-1.5">
                                     <label htmlFor="topk" className="text-[13px] font-medium text-ink-2">Contexto de recuperación (Top-K)</label>
                                     <div className="flex items-center gap-3">
-                                        <Input id="topk" type="number" defaultValue="5" min="1" max="25" className="w-20 text-center font-mono" />
+                                        <Input
+                                            id="topk"
+                                            type="number"
+                                            value={topK}
+                                            onChange={e => setTopK(Math.max(1, Math.min(25, Number(e.target.value))))}
+                                            min="1"
+                                            max="25"
+                                            className="w-20 text-center font-mono"
+                                        />
                                         <span className="text-sm text-ink-2">fragmentos</span>
                                     </div>
                                     <p className="text-[12px] text-ink-3">Valores más altos mejoran la precisión en documentos largos, pero aumentan el tiempo de respuesta.</p>

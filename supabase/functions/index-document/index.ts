@@ -6,16 +6,81 @@ const corsHeaders = {
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Helper: Naive text chunking
+// Helper: Naive text chunking with semantic-friendly boundaries
 function chunkText(text: string, chunkSize = 1000, overlap = 200) {
     const chunks = []
     let startIndex = 0
     while (startIndex < text.length) {
-        const endIndex = Math.min(startIndex + chunkSize, text.length)
-        chunks.push(text.slice(startIndex, endIndex))
+        let endIndex = Math.min(startIndex + chunkSize, text.length)
+        // Prefer breaking at sentence/paragraph boundaries
+        if (endIndex < text.length) {
+            const breakAt = text.lastIndexOf('\n', endIndex) ?? text.lastIndexOf('. ', endIndex)
+            if (breakAt > startIndex + chunkSize * 0.5) endIndex = breakAt + 1
+        }
+        const chunk = text.slice(startIndex, endIndex).trim()
+        if (chunk.length > 0) chunks.push(chunk)
         startIndex += chunkSize - overlap
     }
     return chunks
+}
+
+// Extract text from a PDF binary blob using a heuristic UTF-8 stream parser.
+// This covers most text-based PDFs without requiring a heavy WASM dependency.
+async function extractTextFromPdf(buffer: ArrayBuffer): Promise<string> {
+    const bytes = new Uint8Array(buffer)
+    const decoder = new TextDecoder('latin1')
+    const raw = decoder.decode(bytes)
+
+    const segments: string[] = []
+
+    // Extract BT...ET blocks (PDF text operators)
+    const btEtRegex = /BT([\s\S]*?)ET/g
+    let match
+    while ((match = btEtRegex.exec(raw)) !== null) {
+        const block = match[1]
+        // Extract text from Tj, TJ, ' and " operators
+        const tjRegex = /\(((?:[^)(\\]|\\[\s\S])*)\)\s*(?:Tj|'|")/g
+        let tjMatch
+        while ((tjMatch = tjRegex.exec(block)) !== null) {
+            const decoded = tjMatch[1]
+                .replace(/\\n/g, '\n')
+                .replace(/\\r/g, '\r')
+                .replace(/\\t/g, '\t')
+                .replace(/\\\\/g, '\\')
+                .replace(/\\([()\\])/g, '$1')
+            segments.push(decoded)
+        }
+        // TJ arrays: [(text) spacing (text)] TJ
+        const tjArrayRegex = /\[((?:[^[\]]|\\.)*)\]\s*TJ/g
+        let tjArrMatch
+        while ((tjArrMatch = tjArrayRegex.exec(block)) !== null) {
+            const inner = tjArrMatch[1]
+            const strParts = inner.match(/\(((?:[^)(\\]|\\[\s\S])*)\)/g) || []
+            for (const part of strParts) {
+                segments.push(part.slice(1, -1).replace(/\\\\/g, '\\').replace(/\\([()\\])/g, '$1'))
+            }
+        }
+    }
+
+    if (segments.length > 0) return segments.join(' ').replace(/\s{3,}/g, '\n\n').trim()
+
+    // Fallback: extract any printable ASCII sequences > 4 chars from the raw binary
+    const asciiSegments = raw.match(/[ -~]{5,}/g) || []
+    return asciiSegments
+        .filter(s => /[a-zA-Z]{3,}/.test(s))
+        .join(' ')
+        .replace(/\s{3,}/g, '\n\n')
+        .trim()
+}
+
+async function extractText(fileBlob: Blob, storagePath: string): Promise<string> {
+    const ext = storagePath.split('.').pop()?.toLowerCase() ?? ''
+    if (ext === 'pdf') {
+        const buffer = await fileBlob.arrayBuffer()
+        return extractTextFromPdf(buffer)
+    }
+    // TXT, MD, DOCX (docx has XML inside that .text() partially exposes)
+    return fileBlob.text()
 }
 
 serve(async (req) => {
@@ -62,7 +127,7 @@ serve(async (req) => {
 
         if (downloadError || !fileData) throw new Error('Failed to download document')
 
-        const text = await fileData.text()
+        const text = await extractText(fileData, doc.storage_path)
 
         // 3. Chunk text
         const chunks = chunkText(text)

@@ -3,11 +3,60 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 
 import { Textarea } from '@/components/ui/textarea';
-import { MessageSquare, Send, Plus, Zap, Bookmark, MoreHorizontal, Square, Loader2, Globe, Pencil, Trash2, X, Paperclip } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { MessageSquare, Send, Plus, Zap, Bookmark, MoreHorizontal, Square, Loader2, Globe, Pencil, Trash2, X, Paperclip, AlertTriangle } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { toast } from 'sonner';
 import * as demo from '@/lib/demoStore';
+
+// ---- Inline modal components ------------------------------------------------
+
+function ConfirmModal({ message, onConfirm, onCancel }: { message: string; onConfirm: () => void; onCancel: () => void }) {
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/30 backdrop-blur-[2px]" onClick={onCancel}>
+            <div className="w-full max-w-sm mx-4 bg-surface rounded-xl border border-line shadow-float p-5" onClick={e => e.stopPropagation()}>
+                <div className="flex items-start gap-3 mb-4">
+                    <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-danger-soft">
+                        <AlertTriangle className="w-[18px] h-[18px] text-danger" />
+                    </div>
+                    <p className="text-[14px] text-ink leading-snug pt-1.5">{message}</p>
+                </div>
+                <div className="flex justify-end gap-2">
+                    <button onClick={onCancel} className="h-9 px-4 rounded-lg text-[13px] font-medium text-ink-2 hover:bg-surface-3 transition-colors">Cancelar</button>
+                    <button onClick={onConfirm} className="h-9 px-4 rounded-lg text-[13px] font-medium bg-danger text-white hover:opacity-90 transition-opacity">Eliminar</button>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function RenameModal({ initialValue, onSave, onCancel }: { initialValue: string; onSave: (v: string) => void; onCancel: () => void }) {
+    const [value, setValue] = useState(initialValue);
+    const inputRef = useRef<HTMLInputElement>(null);
+    useEffect(() => { inputRef.current?.select(); }, []);
+
+    const submit = () => { const v = value.trim(); if (v && v !== initialValue) onSave(v); else onCancel(); };
+
+    return (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-ink/30 backdrop-blur-[2px]" onClick={onCancel}>
+            <div className="w-full max-w-sm mx-4 bg-surface rounded-xl border border-line shadow-float p-5" onClick={e => e.stopPropagation()}>
+                <h3 className="text-[14px] font-semibold text-ink mb-3">Renombrar conversación</h3>
+                <Input
+                    ref={inputRef}
+                    value={value}
+                    onChange={e => setValue(e.target.value)}
+                    onKeyDown={e => { if (e.key === 'Enter') submit(); if (e.key === 'Escape') onCancel(); }}
+                    className="mb-4"
+                />
+                <div className="flex justify-end gap-2">
+                    <button onClick={onCancel} className="h-9 px-4 rounded-lg text-[13px] font-medium text-ink-2 hover:bg-surface-3 transition-colors">Cancelar</button>
+                    <button onClick={submit} className="h-9 px-4 rounded-lg text-[13px] font-medium bg-brand text-ink-on-accent hover:bg-brand-hover transition-colors">Guardar</button>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 type ChatSession = {
     id: string;
@@ -44,6 +93,8 @@ export default function Chat() {
     const [webSearch, setWebSearch] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+    const [renameModal, setRenameModal] = useState<{ id: string; title: string } | null>(null);
+    const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
     const { data: sessions } = useQuery({
         queryKey: ['chat_sessions'],
@@ -356,17 +407,12 @@ export default function Chat() {
 
     const handleRename = (id: string, current: string) => {
         setMenuOpenId(null);
-        const next = window.prompt('Renombrar conversación', current);
-        if (next && next.trim() && next.trim() !== current) {
-            renameSession.mutate({ id, title: next.trim() });
-        }
+        setRenameModal({ id, title: current });
     };
 
     const handleDelete = (id: string) => {
         setMenuOpenId(null);
-        if (window.confirm('¿Eliminar esta conversación? No se puede deshacer.')) {
-            deleteSession.mutate(id);
-        }
+        setConfirmDeleteId(id);
     };
 
     return (
@@ -639,7 +685,22 @@ export default function Chat() {
                     </div>
                 </div>
             </div>
-            
-        </div>
+
+        {/* Inline modals */}
+        {renameModal && (
+            <RenameModal
+                initialValue={renameModal.title}
+                onSave={(title) => { renameSession.mutate({ id: renameModal.id, title }); setRenameModal(null); }}
+                onCancel={() => setRenameModal(null)}
+            />
+        )}
+        {confirmDeleteId && (
+            <ConfirmModal
+                message="¿Eliminar esta conversación? No se puede deshacer."
+                onConfirm={() => { deleteSession.mutate(confirmDeleteId); setConfirmDeleteId(null); }}
+                onCancel={() => setConfirmDeleteId(null)}
+            />
+        )}
+    </div>
     );
 }
